@@ -79,7 +79,6 @@ class MainController {
         this.shortcuts = new Shortcuts(this, constants)
         this.shortcuts.bindKeys()
     }
-
     loadApp(config) {
         const urlParams = new URLSearchParams(window.location.search)
         const saveMode = urlParams.get('save_mode')
@@ -141,7 +140,8 @@ class MainController {
         this.isPlaying = false;
         this.playbackSpeeds = constants.PLAYBACK_SPEED;
         this.currentPlaybackSpeed = 1;
-
+        this.applicationMode = constants.APPLICATION_MODE.IDENTIFICATION;
+        this.identificationMode= this.applicationMode==constants.APPLICATION_MODE.IDENTIFICATION;
         // history variables
         this.undoStack = [];
         this.regionsHistory = {};
@@ -1138,6 +1138,7 @@ class MainController {
 
     playPause() {
         this.isPlaying ? this.wavesurfer.pause() : this.wavesurfer.play();
+      //  console.log(this.filesData[this.selectedFileIndex].legend);
     }
 
     playRegion() {
@@ -1559,7 +1560,7 @@ class MainController {
                     self.$timeout(() => {
                         $scope.draftAvailable = true
                     })
-                } 
+                }
                 $scope.runDemo = function () {
                     self.filesData = [{
                         filename: 'demo.json',

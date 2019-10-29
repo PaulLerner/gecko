@@ -303,10 +303,19 @@
                                        ng-checked="ctrl.selectedRegion.data.speaker.indexOf(speaker) > -1"
                                        ng-click="ctrl.speakerChanged(speaker)"
                                        ng-disabled="!ctrl.selectedRegion"
+                                       ng-show="!ctrl.identificationMode"
                                 style="margin-bottom: 0px">
+                                <!-- <select ng-options="select as label for (key , value) in object ctrl.filesData[ctrl.selectedFileIndex].legend">{{select}}</select> -->
+
+                                <select name="singleSelect" id="singleSelect">
+                                  <option value="">{{speaker}}</option>
+                                  <option ng-repeat="option in Objects.keys(ctrl.filesData[ctrl.selectedFileIndex].legend)" value="{{option.id}}">{{option.name}}</option>
+                                  <!-- <option *ngFor="let opt of Objects.keys(ctrl.filesData[ctrl.selectedFileIndex].legend)" [value]="opt">{{opt}}</option> -->
+                                </select>
                                 <span editable
                                       changed="ctrl.speakerNameChanged(oldText,newText)"
                                       ng-model="speaker"
+                                      ng-show="!ctrl.identificationMode"
                                       title="{{speaker}}"
                                 class="speaker-legend">
                                 </span>
