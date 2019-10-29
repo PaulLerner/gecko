@@ -1137,6 +1137,7 @@ class MainController {
     }
 
     playPause() {
+      //console.log(this.speakers)
         this.isPlaying ? this.wavesurfer.pause() : this.wavesurfer.play();
       //  console.log(this.filesData[this.selectedFileIndex].legend);
     }
@@ -1439,12 +1440,16 @@ class MainController {
         this.regionUpdated(self.selectedRegion);
     }
 
-    speakerNameChanged(oldText, newText) {
+    speakerNameChanged() {
+      console.log("ctrl.speakerNameChanged");
         let self = this;
 
-        // Check that there is no duplicate speaker.
-        if (self.filesData[self.selectedFileIndex].legend[newText] !== undefined) return false;
-
+        console.log(this.speaker);
+        if (this.applicationMode==constants.APPLICATION_MODE.VANILLA)
+        {// Check that there is no duplicate speaker.
+          if (self.filesData[self.selectedFileIndex].legend[newText] !== undefined) return false;
+      }
+      //else we don't care that there are duplicate speakers
         self.updateLegend(self.selectedFileIndex, oldText, newText);
 
         let changedRegions = [];

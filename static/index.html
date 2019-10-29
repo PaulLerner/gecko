@@ -305,12 +305,11 @@
                                        ng-disabled="!ctrl.selectedRegion"
                                        ng-show="!ctrl.identificationMode"
                                 style="margin-bottom: 0px">
-                                <!-- <select ng-options="select as label for (key , value) in object ctrl.filesData[ctrl.selectedFileIndex].legend">{{select}}</select> -->
-
-                                <select name="singleSelect" id="singleSelect">
-                                  <option value="">{{speaker}}</option>
-                                  <option ng-repeat="option in Objects.keys(ctrl.filesData[ctrl.selectedFileIndex].legend)" value="{{option.id}}">{{option.name}}</option>
-                                  <!-- <option *ngFor="let opt of Objects.keys(ctrl.filesData[ctrl.selectedFileIndex].legend)" [value]="opt">{{opt}}</option> -->
+                                <select name="singleSelect" id="singleSelect" ng-show="ctrl.identificationMode"
+                                ng-change="ctrl.speakerNameChanged()" 
+                                ng-model="speaker">
+                                  <option ng-repeat="(speaker,_) in ctrl.filesData[ctrl.selectedFileIndex].legend" value="{{speaker}}" >
+                                    {{speaker}}</option>
                                 </select>
                                 <span editable
                                       changed="ctrl.speakerNameChanged(oldText,newText)"
