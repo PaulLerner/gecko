@@ -133,6 +133,7 @@ class MainController {
         }
     }
     resetApplicationMode(applicationMode){
+      this.applicationMode=applicationMode
       this.applicationModes={}
       for (const [key, value] of Object.entries(constants.APPLICATION_MODE)) {
         this.applicationModes[key] = applicationMode==value
@@ -145,6 +146,7 @@ class MainController {
         this.isPlaying = false;
         this.playbackSpeeds = constants.PLAYBACK_SPEED;
         this.currentPlaybackSpeed = 1;
+        this.APPLICATION_MODE=constants.APPLICATION_MODE;
         this.applicationMode = constants.APPLICATION_MODE.IDENTIFICATION;
         this.resetApplicationMode(this.applicationMode);
         this.undoStack = [];
@@ -1447,7 +1449,7 @@ class MainController {
     speakerNameChanged(oldText, newText) {
         let self = this;
 
-        console.log(oldText, newText);
+        //console.log(oldText, newText);
         if (this.applicationModes.VANILLA)
         {// Check that there is no duplicate speaker.
           if (self.filesData[self.selectedFileIndex].legend[newText] !== undefined) return false;

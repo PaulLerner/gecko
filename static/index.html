@@ -46,16 +46,16 @@
               <li class="dropdown">
                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                      aria-expanded="false">
-                      <i class="glyphicon glyphicon-save"></i>
-                      Application Mode
+                      {{ctrl.applicationMode}}
                       <span class="caret"></span>
                   </a>
                   <ul class="dropdown-menu">
-                      <li><a href="#" ng-click="ctrl.resetApplicationMode({{key}})" ng-repeat="(key,value) in ctrl.constants.APPLICATION_MODE">
+                      <li><a href="#" ng-click="ctrl.resetApplicationMode(value)" ng-repeat="(key,value) in ctrl.APPLICATION_MODE">
                           {{value}}
                       </a></li>
                       <li role="separator" class="divider"></li>
                   </ul>
+
               </li>
                 <li class="active">
                     <a href="#" onclick="location.reload();">
@@ -175,6 +175,20 @@
                     </li>
                 </ul>
             </div>
+            <!-- <div class="btn-group" uib-dropdown is-open="status.isopen">
+              <button id="application-mode" type="button" class="btn btn-default" uib-dropdown-toggle>
+                  {{ ctrl.applicationMode }}
+                  <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" uib-dropdown-menu role="menu"  aria-labelledby="application-mode"
+                  title="Set the application mode">
+                  <li role="menuitem" ng-repeat="(key,value) in ctrl.constants.APPLICATION_MODE">
+                      <a href="#" ng-click="ctrl.resetApplicationMode(key)">{{ value }}
+                          <i ng-show="value == ctrl.applicationMode" class="glyphicon glyphicon-ok"></i>
+                      </a>
+                  </li>
+              </ul>
+            </div> -->
 
 
             <button class="btn btn-default" ng-click="ctrl.toggleAutoCenter()"
