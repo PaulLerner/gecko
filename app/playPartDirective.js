@@ -80,6 +80,10 @@ export function playPartDirective() {
             scope.isPlaying = false;
             scope.$evalAsync();
           });
+          source.addEventListener('out', function () {
+            scope.isPlaying = false;
+            scope.$evalAsync();
+          });
 
           source.buffer = cut(scope.rep.start, scope.rep.end); // tell the source which sound to play
           source.connect(scope.audioContext.destination);       // connect the source to the context's destination (the speakers)
@@ -91,47 +95,34 @@ export function playPartDirective() {
           source.stop();
           scope.isPlaying = false;
         }
-        scope.playSpeaker = function (){
-          console.log("in playSpeaker function ");
-          /*var ctrl = scope.$parent.ctrl;
-          var speaker_id=scope.$parent.speaker;
-          console.log("speaker_id",speaker_id);
-          ctrl.iterateRegions(function (region) {
-            let current_speaker = region.data.speaker;
-            if (current_speaker[0]==speaker_id){
-              console.log("region of the same speaker:",region);
-              region.on('out', function(e) {
-                console.log("logging ",region," on out event");
-
-                scope.rep.start=region.start;
-                scope.rep.end=region.end;
-              });
-            }
-
-          });*/
-          scope.isPlaying ? stop() : play();
 
 
-        /*  console.log(speaker_regions);
-          for (var i = 0; i < speaker_regions.length-1; i++) {
-            speaker_regions[i].on('out', function(e) {
-              console.log(speaker_regions[i]);//.start, speaker_regions[i+1].end)
+scope.playSpeaker = function () {
+    console.log("in playSpeaker function ");
+                var ctrl = scope.$parent.ctrl;
+                var speaker_id=scope.$parent.speaker;
+                console.log("speaker_id",speaker_id);
+                let firstRegion = null
+                var speakers_regions=[]
+                var i =0
+                ctrl.iterateRegions(function (region) {
+                    let current_speaker = region.data.speaker;
+                    if (current_speaker[0]==speaker_id){
+                        if (!firstRegion) {
+                            firstRegion = region
+                            region.play()
+                        }
+                        speakers_regions.push(region)
+                    region.on('out', function(e) {
+                        i+=1;
+                        console.log(i);
+                        speakers_regions[i].play()
+                        console.log("logging ",region," on out event");
+                    });
+                    }
+                });
+ }
 
-              scope.rep.start=speaker_regions[i].start;
-              scope.rep.start=speaker_regions[i].end;
-            });
-          }
-
-*/
-
-          /*var speaker_id=this.selectedRegion.data.speaker[0]
-          console.log("speaker id : ",speaker_id)
-          this.filesData[this.selectedFileIndex].data.forEach(function(monolog){
-          if (monolog.speaker.id == speaker_id){
-          console.log(monolog.start)
-        }
-      });*/
-    }
     scope.playStop = function () {
 
       console.log("in playStop function ")
