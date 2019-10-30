@@ -803,41 +803,45 @@ class MainController {
 
         this.selectedRegion = region;
     }
-
+    getSpeakerRegions(region){
+      //parameter : region you wish to get speaker regions from.
+      //returns an array of regions of the same speaker as region, along with the index of this region in this array.
+      var speaker_regions=[];
+      var region_id=region.id;
+      var speaker_id=region.data.speaker[0];
+      var region_index;
+      var i =0;
+      this.iterateRegions(function (r) {
+        if (r.data.speaker[0]==speaker_id)
+        {
+          speaker_regions.push(r);
+          if(r.id == region_id){
+            region_index=i;
+          }
+          i+=1;
+        }
+      });
+      return [speaker_regions, region_index]
+    }
     jumpRegion(next) {
-      //console.log("jumpRegion is play next region")
         var region;
-
         if (this.selectedRegion) {
-          var speaker_id=this.selectedRegion.data.speaker[0];
-          var start_time=this.selectedRegion.start;
             if (next) {
               if (this.applicationModes.VANILLA){
                 region = this.wavesurfer.regions.list[this.selectedRegion.next];
               }
               else {//play next region of the same speaker
-                var next_start_time=Infinity;
-                this.iterateRegions(function (r) {
-                  if (r.data.speaker[0]==speaker_id && r.start > start_time && r.start < next_start_time)
-                  {
-                    region = r;
-                    next_start_time=r.start;
-                  }
-                });
+                const [speaker_regions, region_index] = this.getSpeakerRegions(this.selectedRegion);
+                region=speaker_regions[region_index+1];
               }
-
             }
             else {
               if (this.applicationModes.VANILLA){
                 region = this.wavesurfer.regions.list[this.selectedRegion.prev];
               }
               else {//play previous region of the same speaker
-                this.iterateRegions(function (r) {
-                  if (r.data.speaker[0]==speaker_id && r.start < start_time)
-                  {
-                    region = r;
-                  }
-                });
+                const [speaker_regions, region_index] = this.getSpeakerRegions(this.selectedRegion);
+                region=speaker_regions[region_index-1];
               }
             }
         }
