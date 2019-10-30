@@ -132,7 +132,12 @@ class MainController {
             this.loadClientMode();
         }
     }
-
+    resetApplicationMode(applicationMode){
+      this.applicationModes={}
+      for (const [key, value] of Object.entries(constants.APPLICATION_MODE)) {
+        this.applicationModes[key] = applicationMode==value
+      }
+    }
     init() {
         this.currentTime = "00:00";
         // this.currentTimeSeconds = 0;
@@ -141,10 +146,7 @@ class MainController {
         this.playbackSpeeds = constants.PLAYBACK_SPEED;
         this.currentPlaybackSpeed = 1;
         this.applicationMode = constants.APPLICATION_MODE.IDENTIFICATION;
-        this.applicationModes={}
-        for (const [key, value] of Object.entries(constants.APPLICATION_MODE)) {
-          this.applicationModes[key] = this.applicationMode==value
-        }
+        this.resetApplicationMode(this.applicationMode);
         this.undoStack = [];
         this.regionsHistory = {};
         this.updateOtherRegions = new Set();
@@ -1442,12 +1444,11 @@ class MainController {
         this.regionUpdated(self.selectedRegion);
     }
 
-    speakerNameChanged() {
-      console.log("ctrl.speakerNameChanged");
+    speakerNameChanged(oldText, newText) {
         let self = this;
 
-        console.log(speaker);
-        if (this.applicationMode==constants.APPLICATION_MODE.VANILLA)
+        console.log(oldText, newText);
+        if (this.applicationModes.VANILLA)
         {// Check that there is no duplicate speaker.
           if (self.filesData[self.selectedFileIndex].legend[newText] !== undefined) return false;
       }

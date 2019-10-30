@@ -43,11 +43,26 @@
                 </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
+              <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                     aria-expanded="false">
+                      <i class="glyphicon glyphicon-save"></i>
+                      Application Mode
+                      <span class="caret"></span>
+                  </a>
+                  <ul class="dropdown-menu">
+                      <li><a href="#" ng-click="ctrl.resetApplicationMode({{key}})" ng-repeat="(key,value) in ctrl.constants.APPLICATION_MODE">
+                          {{value}}
+                      </a></li>
+                      <li role="separator" class="divider"></li>
+                  </ul>
+              </li>
                 <li class="active">
                     <a href="#" onclick="location.reload();">
                         <i class="glyphicon glyphicon-open"></i>
                         Load
                     </a></li>
+
                 <li class="dropdown" ng-if="!ctrl.isServerMode">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                        aria-expanded="false">
@@ -306,7 +321,7 @@
                                        ng-show="!ctrl.applicationModes.IDENTIFICATION"
                                 style="margin-bottom: 0px">
                                 <select name="singleSelect" id="singleSelect" ng-show="ctrl.applicationModes.IDENTIFICATION"
-                                ng-change="ctrl.speakerNameChanged()"
+                                ng-change="ctrl.speakerNameChanged('{{speaker}}',speaker)"
                                 ng-model="speaker">
                                   <option ng-repeat="(speaker,_) in ctrl.filesData[ctrl.selectedFileIndex].legend" value="{{speaker}}" >
                                     {{speaker}}</option>
