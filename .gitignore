@@ -4,3 +4,5 @@ node_modules
 .idea/
 .env
 /private_samples/
+.ipynb_checkpoints/
+.nfs*
