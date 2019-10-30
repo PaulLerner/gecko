@@ -11,7 +11,11 @@
 export const PLAYBACK_SPEED = [
     0.5, 0.75, 1, 1.25, 1.5, 1.75, 2
 ];
-
+export const APPLICATION_MODE={
+  VANILLA:"Vanilla (Gong)",
+  DIARIZATION:"Diarization",
+  IDENTIFICATION:"Identification"
+}
 export const SPEAKER_COLORS = [
     "#a94dec",
     "#54F2D9",

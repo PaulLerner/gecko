@@ -43,11 +43,26 @@
                 </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
+              <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                     aria-expanded="false">
+                      {{ctrl.applicationMode}}
+                      <span class="caret"></span>
+                  </a>
+                  <ul class="dropdown-menu">
+                      <li><a href="#" ng-click="ctrl.resetApplicationMode(value)" ng-repeat="(key,value) in ctrl.APPLICATION_MODE">
+                          {{value}}
+                      </a></li>
+                      <li role="separator" class="divider"></li>
+                  </ul>
+
+              </li>
                 <li class="active">
                     <a href="#" onclick="location.reload();">
                         <i class="glyphicon glyphicon-open"></i>
                         Load
                     </a></li>
+
                 <li class="dropdown" ng-if="!ctrl.isServerMode">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                        aria-expanded="false">
@@ -170,6 +185,20 @@
                     </li>
                 </ul>
             </div>
+            <!-- <div class="btn-group" uib-dropdown is-open="status.isopen">
+              <button id="application-mode" type="button" class="btn btn-default" uib-dropdown-toggle>
+                  {{ ctrl.applicationMode }}
+                  <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" uib-dropdown-menu role="menu"  aria-labelledby="application-mode"
+                  title="Set the application mode">
+                  <li role="menuitem" ng-repeat="(key,value) in ctrl.constants.APPLICATION_MODE">
+                      <a href="#" ng-click="ctrl.resetApplicationMode(key)">{{ value }}
+                          <i ng-show="value == ctrl.applicationMode" class="glyphicon glyphicon-ok"></i>
+                      </a>
+                  </li>
+              </ul>
+            </div> -->
 
 
             <button class="btn btn-default" ng-click="ctrl.toggleAutoCenter()"
@@ -291,7 +320,7 @@
         <!--            </div>-->
         <!--        </div>-->
 
-        <div class="col col-md-3" ng-if="!ctrl.discrepancies">
+        <div class="col col-md-4" ng-if="!ctrl.discrepancies">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">
@@ -321,10 +350,18 @@
                                        ng-checked="ctrl.selectedRegion.data.speaker.indexOf(speaker) > -1"
                                        ng-click="ctrl.speakerChanged(speaker)"
                                        ng-disabled="!ctrl.selectedRegion"
+                                       ng-show="!ctrl.applicationModes.IDENTIFICATION"
                                 style="margin-bottom: 0px">
+                                <select name="singleSelect" id="singleSelect" ng-show="ctrl.applicationModes.IDENTIFICATION"
+                                ng-change="ctrl.speakerNameChanged('{{speaker}}',speaker)"
+                                ng-model="speaker">
+                                  <option ng-repeat="(speaker,_) in ctrl.filesData[ctrl.selectedFileIndex].legend" value="{{speaker}}" >
+                                    {{speaker}}</option>
+                                </select>
                                 <span editable
                                       changed="ctrl.speakerNameChanged(oldText,newText)"
                                       ng-model="speaker"
+                                      ng-show="!ctrl.applicationModes.IDENTIFICATION"
                                       title="{{speaker}}"
                                 class="speaker-legend">
                                 </span>
@@ -337,7 +374,7 @@
                             </label>
                         </div>
 
-                        <div>
+                        <div ng-show="ctrl.applicationModes.VANILLA">
                             <label class="annotation-label">
                                 Add a new speaker:
                                 <input type="text" ng-model="ctrl.newSpeakerName"
@@ -353,7 +390,7 @@
             </div>
         </div>
 
-        <div class="col col-lg-3 col-md-6 segment-text" ng-if="ctrl.discrepancies">
+        <div class="col col-lg-3 col-md-4 segment-text" ng-if="ctrl.discrepancies">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 class="panel-title">
@@ -417,7 +454,7 @@
 
         </div>
 
-        <div class="col col-md-{{ctrl.transcriptPanelSize}} segment-text"
+        <div class="col col-md-4 segment-text"
              ng-repeat="file in ctrl.filesData track by $index">
             <div class="panel panel-default" ng-class="{'selected-file': $index === ctrl.selectedFileIndex}">
                 <div class="panel-heading">

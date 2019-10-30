@@ -75,7 +75,6 @@ class MainController {
         this.shortcuts = new Shortcuts(this, constants)
         this.shortcuts.bindKeys()
     }
-
     loadApp(config) {
         const urlParams = new URLSearchParams(window.location.search)
         const saveMode = urlParams.get('save_mode')
@@ -129,7 +128,13 @@ class MainController {
             this.loadClientMode();
         }
     }
-
+    resetApplicationMode(applicationMode){
+      this.applicationMode=applicationMode
+      this.applicationModes={}
+      for (const [key, value] of Object.entries(constants.APPLICATION_MODE)) {
+        this.applicationModes[key] = applicationMode==value
+      }
+    }
     init() {
         this.currentTime = "00:00";
         // this.currentTimeSeconds = 0;
@@ -143,8 +148,9 @@ class MainController {
         if (config.wavesurfer.useSpectrogram) {
             this.showSpectrogramButton = true
         }
-
-        // history variables
+        this.APPLICATION_MODE=constants.APPLICATION_MODE;
+        this.applicationMode = constants.APPLICATION_MODE.IDENTIFICATION;
+        this.resetApplicationMode(this.applicationMode);
         this.undoStack = [];
         this.regionsHistory = {};
         this.updateOtherRegions = new Set();
@@ -1336,9 +1342,12 @@ class MainController {
     speakerNameChanged(oldText, newText) {
         let self = this;
 
-        // Check that there is no duplicate speaker.
-        if (self.filesData[self.selectedFileIndex].legend[newText] !== undefined) return false;
-
+        //console.log(oldText, newText);
+        if (this.applicationModes.VANILLA)
+        {// Check that there is no duplicate speaker.
+          if (self.filesData[self.selectedFileIndex].legend[newText] !== undefined) return false;
+      }
+      //else we don't care that there are duplicate speakers
         self.updateLegend(self.selectedFileIndex, oldText, newText);
 
         let changedRegions = [];
@@ -1454,7 +1463,7 @@ class MainController {
                     self.$timeout(() => {
                         $scope.draftAvailable = true
                     })
-                } 
+                }
                 $scope.runDemo = function () {
                     self.filesData = [{
                         filename: 'demo.json',
@@ -1616,7 +1625,7 @@ class MainController {
     async loadFromDB (res) {
         const mediaFile = res[0]
         const files = res[1]
-        
+
         if (files && files.length) {
             this.filesData = files.map((f) => {
                 return {
