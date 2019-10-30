@@ -102,21 +102,21 @@ scope.playSpeaker = function () {
                 var ctrl = scope.$parent.ctrl;
                 var speaker_id=scope.$parent.speaker;
                 console.log("speaker_id",speaker_id);
-                let firstRegion = null
-                var speakers_regions=[]
-                var i =0
+                let firstRegion = null;
+                var speakers_regions=[];
+                var i =0;
                 ctrl.iterateRegions(function (region) {
                     let current_speaker = region.data.speaker;
                     if (current_speaker[0]==speaker_id){
                         if (!firstRegion) {
-                            firstRegion = region
-                            region.play()
+                            firstRegion = region;
+                            region.play();
                         }
                         speakers_regions.push(region)
                     region.on('out', function(e) {
                         i+=1;
                         console.log(i);
-                        speakers_regions[i].play()
+                        speakers_regions[i].play();
                         console.log("logging ",region," on out event");
                     });
                     }

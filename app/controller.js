@@ -805,15 +805,43 @@ class MainController {
     }
 
     jumpRegion(next) {
+      //console.log("jumpRegion is play next region")
         var region;
 
         if (this.selectedRegion) {
+          var speaker_id=this.selectedRegion.data.speaker[0];
+          var start_time=this.selectedRegion.start;
             if (next) {
+              if (this.applicationModes.VANILLA){
                 region = this.wavesurfer.regions.list[this.selectedRegion.next];
-            } else {
-                region = this.wavesurfer.regions.list[this.selectedRegion.prev];
+              }
+              else {//play next region of the same speaker
+                var next_start_time=Infinity;
+                this.iterateRegions(function (r) {
+                  if (r.data.speaker[0]==speaker_id && r.start > start_time && r.start < next_start_time)
+                  {
+                    region = r;
+                    next_start_time=r.start;
+                  }
+                });
+              }
+
             }
-        } else {
+            else {
+              if (this.applicationModes.VANILLA){
+                region = this.wavesurfer.regions.list[this.selectedRegion.prev];
+              }
+              else {//play previous region of the same speaker
+                this.iterateRegions(function (r) {
+                  if (r.data.speaker[0]==speaker_id && r.start < start_time)
+                  {
+                    region = r;
+                  }
+                });
+              }
+            }
+        }
+        else {
             if (next) {
                 region = this.findClosestRegionToTime(this.selectedFileIndex, this.wavesurfer.getCurrentTime());
             } else {
@@ -938,7 +966,7 @@ class MainController {
         });
     }
 
-// Assuming time is not contained in any region
+    // Assuming time is not contained in any region
     findClosestRegionToTime(fileIndex, time, before) {
         var closest = null;
         this.iterateRegions(function (region) {
