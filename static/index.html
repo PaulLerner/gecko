@@ -303,10 +303,10 @@
                                        ng-checked="ctrl.selectedRegion.data.speaker.indexOf(speaker) > -1"
                                        ng-click="ctrl.speakerChanged(speaker)"
                                        ng-disabled="!ctrl.selectedRegion"
-                                       ng-show="!ctrl.identificationMode"
+                                       ng-show="!ctrl.applicationModes.IDENTIFICATION"
                                 style="margin-bottom: 0px">
-                                <select name="singleSelect" id="singleSelect" ng-show="ctrl.identificationMode"
-                                ng-change="ctrl.speakerNameChanged()" 
+                                <select name="singleSelect" id="singleSelect" ng-show="ctrl.applicationModes.IDENTIFICATION"
+                                ng-change="ctrl.speakerNameChanged()"
                                 ng-model="speaker">
                                   <option ng-repeat="(speaker,_) in ctrl.filesData[ctrl.selectedFileIndex].legend" value="{{speaker}}" >
                                     {{speaker}}</option>
@@ -314,7 +314,7 @@
                                 <span editable
                                       changed="ctrl.speakerNameChanged(oldText,newText)"
                                       ng-model="speaker"
-                                      ng-show="!ctrl.identificationMode"
+                                      ng-show="!ctrl.applicationModes.IDENTIFICATION"
                                       title="{{speaker}}"
                                 class="speaker-legend">
                                 </span>
@@ -327,7 +327,7 @@
                             </label>
                         </div>
 
-                        <div>
+                        <div ng-show="ctrl.applicationModes.VANILLA">
                             <label class="annotation-label">
                                 Add a new speaker:
                                 <input type="text" ng-model="ctrl.newSpeakerName"

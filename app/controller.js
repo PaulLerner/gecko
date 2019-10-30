@@ -141,8 +141,10 @@ class MainController {
         this.playbackSpeeds = constants.PLAYBACK_SPEED;
         this.currentPlaybackSpeed = 1;
         this.applicationMode = constants.APPLICATION_MODE.IDENTIFICATION;
-        this.identificationMode= this.applicationMode==constants.APPLICATION_MODE.IDENTIFICATION;
-        // history variables
+        this.applicationModes={}
+        for (const [key, value] of Object.entries(constants.APPLICATION_MODE)) {
+          this.applicationModes[key] = this.applicationMode==value
+        }
         this.undoStack = [];
         this.regionsHistory = {};
         this.updateOtherRegions = new Set();
@@ -1444,7 +1446,7 @@ class MainController {
       console.log("ctrl.speakerNameChanged");
         let self = this;
 
-        console.log(this.speaker);
+        console.log(speaker);
         if (this.applicationMode==constants.APPLICATION_MODE.VANILLA)
         {// Check that there is no duplicate speaker.
           if (self.filesData[self.selectedFileIndex].legend[newText] !== undefined) return false;
