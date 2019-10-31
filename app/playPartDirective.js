@@ -97,8 +97,10 @@ export function playPartDirective() {
         }
 
 scope.playFirstRegion  = function () {
-  //plays first region (might redefine what 'first' means later on) of the speaker the user clicked on
-  //warns when no region labelled as scope.$parent.speaker were found
+  /**
+  *plays first region (might redefine what 'first' means later on) of the speaker the user clicked on
+  *warns when no region labelled as scope.$parent.speaker were found
+  */
   var ctrl = scope.$parent.ctrl;
   var speaker_id=scope.$parent.speaker;
   let firstRegion = null;
