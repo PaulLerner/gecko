@@ -352,19 +352,26 @@
                                        ng-disabled="!ctrl.selectedRegion"
                                        ng-show="!ctrl.applicationModes.IDENTIFICATION"
                                 style="margin-bottom: 0px">
+                                <!-- VANILLA mode : user can edit speaker name-->
+                                <span editable
+                                      changed="ctrl.speakerNameChanged(oldText,newText)"
+                                      ng-model="speaker"
+                                      ng-show="ctrl.applicationModes.VANILLA"
+                                      title="{{speaker}}"
+                                class="speaker-legend">
+                                </span>
+                                <!-- DIARIZATION mode : speaker is not editable-->
+                                <span ng-model="speaker"
+                                      ng-show="ctrl.applicationModes.DIARIZATION"
+                                class="speaker-legend">{{speaker}}
+                              </span>
+                                <!-- IDENTIFICATION mode : select speaker from a list-->
                                 <select name="singleSelect" id="singleSelect" ng-show="ctrl.applicationModes.IDENTIFICATION"
                                 ng-change="ctrl.speakerNameChanged('{{speaker}}',speaker)"
                                 ng-model="speaker">
                                   <option ng-repeat="(speaker,_) in ctrl.filesData[ctrl.selectedFileIndex].legend" value="{{speaker}}" >
                                     {{speaker}}</option>
                                 </select>
-                                <span editable
-                                      changed="ctrl.speakerNameChanged(oldText,newText)"
-                                      ng-model="speaker"
-                                      ng-show="!ctrl.applicationModes.IDENTIFICATION"
-                                      title="{{speaker}}"
-                                class="speaker-legend">
-                                </span>
                                 <div class="pull-right">
                                     <play-part audio-context="ctrl.audioContext" audio-backend="ctrl.wavesurfer.backend"
                                                representative="ctrl.filesData[ctrl.selectedFileIndex].reps[speaker]"></play-part>
