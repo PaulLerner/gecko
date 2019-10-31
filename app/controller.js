@@ -1422,7 +1422,9 @@ class MainController {
             let index = region.data.speaker.indexOf(oldText);
 
             if (index > -1) {
-                self.changeSpeakerColor(index, newText, newColor)
+                if (this.applicationModes.IDENTIFICATION){
+                  self.changeSpeakerColor(index, newText, newColor)
+                }
                 region.data.speaker[index] = newText;
                 self.addHistory(region);
                 changedRegions.push(region.id);
