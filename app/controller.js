@@ -1398,16 +1398,23 @@ class MainController {
     }
 
     speakerNameChanged(oldText, newText) {
-      if (this.applicationModes.DIARIZATION) throw("User should not be able to change cluster id in "+this.applicationMode+" mode.");
+        if (this.applicationModes.DIARIZATION) throw("User should not be able to change cluster id in "+this.applicationMode+" mode.");
 
         let self = this;
 
         //console.log(oldText, newText);
-        if (this.applicationModes.VANILLA)
-        {// Check that there is no duplicate speaker.
-          if (self.filesData[self.selectedFileIndex].legend[newText] !== undefined) return false;
-      }
-      //else we don't care that there are duplicate speakers
+
+        var newColor = "#a94dec";//in case something goes wrong ?
+        if (self.filesData[self.selectedFileIndex].legend[newText] !== undefined){
+            if (this.applicationModes.VANILLA){
+                return false;
+            }
+            else {
+                newColor=self.filesData[self.selectedFileIndex].legend[newText];
+            }
+         }
+
+        //else we don't care that there are duplicate speakers
         self.updateLegend(self.selectedFileIndex, oldText, newText);
 
         let changedRegions = [];
@@ -1415,6 +1422,7 @@ class MainController {
             let index = region.data.speaker.indexOf(oldText);
 
             if (index > -1) {
+                self.changeSpeakerColor(index, newText, newColor)
                 region.data.speaker[index] = newText;
                 self.addHistory(region);
                 changedRegions.push(region.id);
