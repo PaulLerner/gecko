@@ -1,3 +1,4 @@
+import * as constants from './constants'
 var config = {
     wavesurfer: {
         container: '#waveform',
@@ -15,6 +16,7 @@ var config = {
             groupWords: true
         }
     },
+    applicationMode:constants.APPLICATION_MODE.IDENTIFICATION,
     slider: "#slider",
     isServerMode: false
 }

@@ -149,7 +149,7 @@ class MainController {
             this.showSpectrogramButton = true
         }
         this.APPLICATION_MODE=constants.APPLICATION_MODE;
-        this.applicationMode = constants.APPLICATION_MODE.IDENTIFICATION;
+        this.applicationMode = config.applicationMode;
         this.resetApplicationMode(this.applicationMode);
         this.undoStack = [];
         this.regionsHistory = {};
