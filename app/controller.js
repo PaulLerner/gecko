@@ -134,6 +134,16 @@ class MainController {
       for (const [key, value] of Object.entries(constants.APPLICATION_MODE)) {
         this.applicationModes[key] = applicationMode==value
       }
+      if (this.applicationModes.VANILLA){
+        this.wavesurfer.enableDragSelection(
+            {
+                drag: false,
+                minLength: constants.MINIMUM_LENGTH
+            });
+      }
+      else {
+        this.wavesurfer.disableDragSelection();
+      }
     }
     init() {
         this.currentTime = "00:00";
@@ -150,7 +160,6 @@ class MainController {
         }
         this.APPLICATION_MODE=constants.APPLICATION_MODE;
         this.applicationMode = config.applicationMode;
-        this.resetApplicationMode(this.applicationMode);
         this.undoStack = [];
         this.regionsHistory = {};
         this.updateOtherRegions = new Set();
@@ -206,14 +215,9 @@ class MainController {
         });
 
         this.wavesurfer.on('ready', function (e) {
+            self.resetApplicationMode(self.applicationMode);
             self.previousHeight = parseInt(self.wavesurfer.getHeight());
             self.totalTime = secondsToMinutes(self.wavesurfer.getDuration());
-            self.wavesurfer.enableDragSelection(
-                {
-                    drag: false,
-                    minLength: constants.MINIMUM_LENGTH
-                });
-
             self.$scope.$watch(() => self.zoomLevel, function (newVal) {
                 if (newVal) {
                     self.wavesurfer.zoom(self.zoomLevel);
@@ -331,6 +335,7 @@ class MainController {
         });
 
         this.wavesurfer.on("region-created", function (region) {
+
             var numOfFiles = self.filesData.length;
 
             // indication when file was created by drag
@@ -345,6 +350,7 @@ class MainController {
                 region.data.speaker = [];
 
                 region.data.initFinished = false;
+
             } else {
                 // fix regions if not added through drag (on drag there is no 'start')
                 self.fixRegionsOrder(region);
@@ -379,11 +385,12 @@ class MainController {
         });
 
         this.wavesurfer.on("region-updated", function (region) {
-            self.regionPositionUpdated(region);
+          self.regionPositionUpdated(region);
 
         });
 
         this.wavesurfer.on('region-update-end', function (region) {
+
             self.regionPositionUpdated(region);
 
             var multiEffect = [region.id];
@@ -398,7 +405,9 @@ class MainController {
             self.undoStack.push(multiEffect);
 
             self.$scope.$evalAsync();
+
         });
+
 
         // this.wavesurfer.on('region-in', function (region) {
         //     if (region.data.fileIndex === self.selectedFileIndex) {
@@ -804,8 +813,10 @@ class MainController {
         this.selectedRegion = region;
     }
     getSpeakerRegions(region){
-      //parameter : region you wish to get speaker regions from.
-      //returns an array of regions of the same speaker as region, along with the index of this region in this array.
+      /**
+      * parameter : region you wish to get speaker regions from.
+      returns an array of regions of the same speaker as region, along with the index of this region in this array.
+      */
       var speaker_regions=[];
       var region_id=region.id;
       var speaker_id=region.data.speaker[0];
@@ -1102,6 +1113,8 @@ class MainController {
                         words: monologue.words
                     },
                     drag: false,
+                    //TODO : user should not be able to resize regions, see issue #35 https://github.com/gong-io/gecko/issues/35
+                    //resize:false,
                     minLength: constants.MINIMUM_LENGTH
                 });
 
@@ -1390,6 +1403,7 @@ class MainController {
                 region.data.speaker[index] = newText;
                 self.addHistory(region);
                 changedRegions.push(region.id);
+                //self.regionUpdated(region);
             }
         }, self.selectedFileIndex);
 

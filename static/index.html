@@ -209,13 +209,15 @@
 
             <button class="btn btn-default" ng-click="ctrl.splitSegment()"
                     title="Split Segment"
-                    ng-disabled="!ctrl.selectedRegion">
+                    ng-disabled="!ctrl.selectedRegion"
+                    ng-show="ctrl.applicationModes.VANILLA">
                 <i class="glyphicon glyphicon-scissors"></i>
             </button>
 
             <button class="btn btn-default" ng-click="ctrl.deleteRegionAction(ctrl.selectedRegion)"
                     title="Delete Segment"
-                    ng-disabled="!ctrl.selectedRegion">
+                    ng-disabled="!ctrl.selectedRegion"                    
+                    ng-show="ctrl.applicationModes.VANILLA">
                 <i class="glyphicon glyphicon-trash"></i>
             </button>
 
