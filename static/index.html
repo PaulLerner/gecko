@@ -218,7 +218,7 @@
 
             <button class="btn btn-default" ng-click="ctrl.deleteRegionAction(ctrl.selectedRegion)"
                     title="Delete Segment"
-                    ng-disabled="!ctrl.selectedRegion"                    
+                    ng-disabled="!ctrl.selectedRegion"
                     ng-show="ctrl.applicationModes.VANILLA">
                 <i class="glyphicon glyphicon-trash"></i>
             </button>
@@ -466,7 +466,7 @@
         </div>
 
         <div class="col col-md-4 segment-text"
-             ng-repeat="file in ctrl.filesData track by $index">
+             ng-repeat="file in ctrl.filesData track by $index" ng-show="ctrl.applicationModes.VANILLA">
             <div class="panel panel-default" ng-class="{'selected-file': $index === ctrl.selectedFileIndex}">
                 <div class="panel-heading">
                     <h3 class="panel-title">File: {{ file.filename }}</h3>
