@@ -1083,7 +1083,15 @@ class MainController {
 
                 var speakerId = "";
                 if (monologue.speaker) {
+                  speakerId = monologue.speaker.id.toString();
+                  /* TODO : make this work
+                  if (monologue.speaker.name !== null){
+                    console.log(monologue.speaker);
+                    speakerId =monologue.speaker.name.toString();
+                  }
+                  else {
                     speakerId = monologue.speaker.id.toString();
+                  }*/
                 }
 
                 if (speakerId === constants.UNKNOWN_SPEAKER) {
@@ -1130,6 +1138,7 @@ class MainController {
     }
 
     splitSegment() {
+        if (!this.applicationModes.VANILLA) throw("User should not be able to split segments in "+this.applicationMode+" mode.");
         let region = this.selectedRegion;
         if (!region) return;
         let time = this.wavesurfer.getCurrentTime();
@@ -1161,6 +1170,8 @@ class MainController {
     }
 
     deleteRegionAction(region) {
+        if (!this.applicationModes.VANILLA) throw("User should not be able to delete regions in "+this.applicationMode+" mode.");
+
         if (!region) return;
 
         this.undoStack.push([region.id]);
@@ -1363,6 +1374,8 @@ class MainController {
     }
 
     speakerChanged(speaker) {
+        if (this.applicationModes.IDENTIFICATION) throw("User should not be able to change segment id in "+this.applicationMode+" mode.");
+
         var self = this;
 
         var speakers = self.selectedRegion.data.speaker;
@@ -1385,6 +1398,8 @@ class MainController {
     }
 
     speakerNameChanged(oldText, newText) {
+      if (this.applicationModes.DIARIZATION) throw("User should not be able to change cluster id in "+this.applicationMode+" mode.");
+
         let self = this;
 
         //console.log(oldText, newText);
@@ -1427,6 +1442,8 @@ class MainController {
     }
 
     addSpeaker() {
+        if (!this.applicationModes.VANILLA) throw("User should not be able to add speakers in "+this.applicationMode+" mode.");
+
         // var speakerNameElement = document.getElementById('newSpeakerName');
 
         let legend = this.filesData[this.selectedFileIndex].legend;
@@ -1512,8 +1529,8 @@ class MainController {
                 }
                 $scope.runDemo = function () {
                     self.filesData = [{
-                        filename: 'demo.json',
-                        data: self.handleTextFormats('demo.json', JSON.stringify(demoJson))
+                        filename: 'demo_pyannote.json',
+                        data: self.handleTextFormats('demo_pyannote.json', JSON.stringify(demoJson))
                     }];
                     self.audioFileName = 'demo.mp3';
                     self.init();
