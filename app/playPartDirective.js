@@ -96,7 +96,23 @@ export function playPartDirective() {
           scope.isPlaying = false;
         }
 
-
+scope.playFirstRegion  = function () {
+  //plays first region (might redefine what 'first' means later on) of the speaker the user clicked on
+  //warns when no region labelled as scope.$parent.speaker were found
+  var ctrl = scope.$parent.ctrl;
+  var speaker_id=scope.$parent.speaker;
+  let firstRegion = null;
+  ctrl.iterateRegions(function (region) {
+      let current_speaker = region.data.speaker;
+      if (current_speaker[0]==speaker_id){
+          if (!firstRegion) {
+              firstRegion = region;
+              region.play();
+          }
+      }
+  });
+  if (firstRegion===null) console.warn("There's no region labelled as "+speaker_id);
+}
 scope.playSpeaker = function () {
     console.log("in playSpeaker function ");
                 var ctrl = scope.$parent.ctrl;
