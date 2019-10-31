@@ -16,7 +16,7 @@
 Both applications will make use of clustering and active learning for a faster annotation process.  
 The different `APPLICATION_MODE` are defined in `app/constants.js` and the user is able to switch `applicationMode` using a dropdown menu binded to the `resetApplicationMode` function.
 
-Two features are currently being implemented, see issues [#27](i27) and [#28](i28).
+Two features are currently being implemented, see issues [#27](https://github.com/gong-io/gecko/issues/27) and [#28](https://github.com/gong-io/gecko/issues/28).
 
 
 ## Features
