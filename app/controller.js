@@ -718,10 +718,16 @@ class MainController {
             let fileIndex = regionIds[1];
             let oldSpeaker = regionIds[2];
             let newSpeaker = regionIds[3];
+            let oldColor=regionIds[4];
+            if (self.filesData[fileIndex].legend[oldSpeaker] === undefined){//old speaker doesn't exist anymore
+              self.newSpeakerName =oldSpeaker;
+              self.addSpeaker(oldColor);
+            }
+            else {
+                self.updateLegend(fileIndex, newSpeaker, oldSpeaker);
+              }
 
-            self.updateLegend(fileIndex, newSpeaker, oldSpeaker);
-
-            regionIds = regionIds[4];
+            regionIds = regionIds[5];
         }
 
 
@@ -1022,7 +1028,13 @@ class MainController {
         self.filesData.forEach(fileData => {
             let colorIndex = 0;
 
-            fileData.legend = Object.assign({}, constants.defaultSpeakers);
+            if (self.applicationModes.VANILLA) {
+              fileData.legend = Object.assign({}, constants.defaultSpeakers);
+            }
+            else {
+              fileData.legend = {};
+            }
+
 
             fileData.data.forEach(monologue => {
                 if (!monologue.speaker.id) return;
@@ -1214,11 +1226,11 @@ class MainController {
     playRegion() {
         if (this.selectedRegion) {
             this.selectedRegion.play();
-            var region= this.selectedRegion;
+          /*  var region= this.selectedRegion;
             region.on('out', function(e) {
                 region.play();
                 console.log("logging ",region," on out event");
-            });
+            });*/
         }
         // play silence region
         else {
@@ -1410,6 +1422,7 @@ class MainController {
         //console.log(oldText, newText);
 
         var newColor = "#a94dec";//in case something goes wrong ?
+        var oldColor = self.filesData[self.selectedFileIndex].legend[oldText];//save in case we have to undo
         if (self.filesData[self.selectedFileIndex].legend[newText] !== undefined){
             if (this.applicationModes.VANILLA){
                 return false;
@@ -1426,7 +1439,6 @@ class MainController {
 
             if (index > -1) {
                 if (this.applicationModes.IDENTIFICATION){
-                  //TODO add to undoStack
                   self.changeSpeakerColor(index, newText, newColor)
                 }
                 region.data.speaker[index] = newText;
@@ -1437,7 +1449,7 @@ class MainController {
         }, self.selectedFileIndex);
 
         // notify the undo mechanism to change the legend as well as the regions
-        self.undoStack.push([constants.SPEAKER_NAME_CHANGED_OPERATION_ID, self.selectedFileIndex, oldText, newText, changedRegions]);
+        self.undoStack.push([constants.SPEAKER_NAME_CHANGED_OPERATION_ID, self.selectedFileIndex, oldText, newText,oldColor, changedRegions]);
     }
 
     updateLegend(fileIndex, oldSpeaker, newSpeaker) {
@@ -1455,23 +1467,35 @@ class MainController {
         }
     }
 
-    addSpeaker() {
-        if (!this.applicationModes.VANILLA) throw("User should not be able to add speakers in "+this.applicationMode+" mode.");
+    addSpeaker(color) {
+      /*
+      * adds a new speaker and assigns it a color.
+      * color defaults to constants.SPEAKER_COLORS[amountOfSpeakers] if undefined
+      */
+        //if (!this.applicationModes.VANILLA) throw("User should not be able to add speakers in "+this.applicationMode+" mode.");
 
         // var speakerNameElement = document.getElementById('newSpeakerName');
 
         let legend = this.filesData[this.selectedFileIndex].legend;
+        //console.log(this.newSpeakerName);
 
         if (this.newSpeakerName === '' || this.newSpeakerName in legend) return;
 
         // Add speaker to legend and assign random color
-        const amountOfSpeakers = Object.keys(legend).length - Object.keys(constants.defaultSpeakers).length;
+        const amountOfSpeakers = Object.keys(legend).length;// - Object.keys(constants.defaultSpeakers).length;
+        console.log(color,amountOfSpeakers)
+        if (color===undefined){
+          legend[this.newSpeakerName] =constants.SPEAKER_COLORS[amountOfSpeakers];
+        }
+        else{
+          legend[this.newSpeakerName] = color;
 
-        legend[this.newSpeakerName] = constants.SPEAKER_COLORS[amountOfSpeakers];
+        }
 
         this.filesData[this.selectedFileIndex].legend = this.sortLegend(legend);
 
         this.newSpeakerName = "";
+        //console.log(legend);
     }
 
     sortLegend(legend) {
