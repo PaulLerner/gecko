@@ -6,7 +6,7 @@
     <title>Speech Recognition Platform </title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="icon" href="images/favicon.png">
-<link href="bundle.css" rel="stylesheet"></head>
+<link href="gecko.css" rel="stylesheet"></head>
 
 <body ng-app="speechRecognition" ng-controller="MainController as ctrl" ng-init="ctrl.loadApp({mode: 'client'})"
       ng-cloak>
@@ -114,7 +114,9 @@
 <div id="waveform"></div>
 <!--<div style="height:10px"></div>-->
 <!--</div>-->
+<div id="timeline">
 
+</div>
 <div class="wrapper" ng-show="ctrl.ready">
     <div id="zoom" class="row" style="margin-bottom: 2em;">
         <div class="col-md-1">
@@ -455,6 +457,6 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
-<script type="text/javascript" src="bundle.js"></script></body>
+<script type="text/javascript" src="gecko.js"></script></body>
 
 </html>
