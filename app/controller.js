@@ -152,11 +152,11 @@ class MainController {
         this.isPlaying = false;
         this.playbackSpeeds = constants.PLAYBACK_SPEED;
         this.currentPlaybackSpeed = 1;
-        this.videoMode = false
-        this.showSpectrogram = false
-        this.showSpectrogramButton = false
+        this.videoMode = false;
+        this.showSpectrogram = false;
+        this.showSpectrogramButton = false;
         if (config.wavesurfer.useSpectrogram) {
-            this.showSpectrogramButton = true
+            this.showSpectrogramButton = true;
         }
         this.APPLICATION_MODE=constants.APPLICATION_MODE;
         this.applicationMode = config.applicationMode;
@@ -1214,6 +1214,11 @@ class MainController {
     playRegion() {
         if (this.selectedRegion) {
             this.selectedRegion.play();
+            var region= this.selectedRegion;
+            region.on('out', function(e) {
+                region.play();
+                console.log("logging ",region," on out event");
+            });
         }
         // play silence region
         else {
@@ -1409,12 +1414,10 @@ class MainController {
             if (this.applicationModes.VANILLA){
                 return false;
             }
-            else {
+            else { //we don't care that there are duplicate speakers
                 newColor=self.filesData[self.selectedFileIndex].legend[newText];
             }
          }
-
-        //else we don't care that there are duplicate speakers
         self.updateLegend(self.selectedFileIndex, oldText, newText);
 
         let changedRegions = [];
@@ -1423,6 +1426,7 @@ class MainController {
 
             if (index > -1) {
                 if (this.applicationModes.IDENTIFICATION){
+                  //TODO add to undoStack
                   self.changeSpeakerColor(index, newText, newColor)
                 }
                 region.data.speaker[index] = newText;

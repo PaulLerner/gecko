@@ -57,96 +57,100 @@ export function playPartDirective() {
           return emptySegment;
         }
 
-        scope.isPlaying = false;
-        let source;
+      scope.isPlaying = false;
+      let source;
 
-        function play() {
-          scope.rep.start = parseFloat(scope.rep.start);
-          scope.rep.end = parseFloat(scope.rep.end);
+      function play() {
+        scope.rep.start = parseFloat(scope.rep.start);
+        scope.rep.end = parseFloat(scope.rep.end);
 
-          if (isNaN(scope.rep.start) && isNaN(scope.rep.end)) {
-            let parent = scope.$parent.ctrl;
-            if (parent.selectedRegion) {
-              scope.rep.start = parent.selectedRegion.start;
-              scope.rep.end = parent.selectedRegion.end;
-            } else {
-              return;
-            }
+        if (isNaN(scope.rep.start) && isNaN(scope.rep.end)) {
+          let parent = scope.$parent.ctrl;
+          if (parent.selectedRegion) {
+            scope.rep.start = parent.selectedRegion.start;
+            scope.rep.end = parent.selectedRegion.end;
+          } else {
+            return;
           }
-
-          source = scope.audioContext.createBufferSource(); // creates a sound source
-
-          source.addEventListener('ended', function () {
-            scope.isPlaying = false;
-            scope.$evalAsync();
-          });
-          source.addEventListener('out', function () {
-            scope.isPlaying = false;
-            scope.$evalAsync();
-          });
-
-          source.buffer = cut(scope.rep.start, scope.rep.end); // tell the source which sound to play
-          source.connect(scope.audioContext.destination);       // connect the source to the context's destination (the speakers)
-          source.start(0);
-          scope.isPlaying = true;
         }
 
-        function stop() {
-          source.stop();
+        source = scope.audioContext.createBufferSource(); // creates a sound source
+
+        source.addEventListener('ended', function () {
           scope.isPlaying = false;
-        }
+          scope.$evalAsync();
+        });
+        source.addEventListener('out', function () {
+          scope.isPlaying = false;
+          scope.$evalAsync();
+        });
 
-scope.playFirstRegion  = function () {
-  /**
-  *plays first region (might redefine what 'first' means later on) of the speaker the user clicked on
-  *warns when no region labelled as scope.$parent.speaker were found
-  */
-  var ctrl = scope.$parent.ctrl;
-  var speaker_id=scope.$parent.speaker;
-  let firstRegion = null;
-  ctrl.iterateRegions(function (region) {
-      let current_speaker = region.data.speaker;
-      if (current_speaker[0]==speaker_id){
-          if (!firstRegion) {
-              firstRegion = region;
-              region.play();
-          }
+        source.buffer = cut(scope.rep.start, scope.rep.end); // tell the source which sound to play
+        source.connect(scope.audioContext.destination);       // connect the source to the context's destination (the speakers)
+        source.start(0);
+        scope.isPlaying = true;
       }
-  });
-  if (firstRegion===null) console.warn("There's no region labelled as "+speaker_id);
-}
-scope.playSpeaker = function () {
-    console.log("in playSpeaker function ");
-                var ctrl = scope.$parent.ctrl;
-                var speaker_id=scope.$parent.speaker;
-                console.log("speaker_id",speaker_id);
-                let firstRegion = null;
-                var speakers_regions=[];
-                var i =0;
-                ctrl.iterateRegions(function (region) {
-                    let current_speaker = region.data.speaker;
-                    if (current_speaker[0]==speaker_id){
-                        if (!firstRegion) {
-                            firstRegion = region;
-                            region.play();
-                        }
-                        speakers_regions.push(region)
+
+      function stop() {
+        source.stop();
+        scope.isPlaying = false;
+      }
+
+      scope.playFirstRegion  = function () {
+        /**
+        *plays first region (might redefine what 'first' means later on) of the speaker the user clicked on
+        *warns when no region labelled as scope.$parent.speaker were found
+        */
+        var ctrl = scope.$parent.ctrl;
+        var speaker_id=scope.$parent.speaker;
+        let firstRegion = null;
+        ctrl.iterateRegions(function (region) {
+            let current_speaker = region.data.speaker;
+            if (current_speaker[0]==speaker_id){
+                if (!firstRegion) {
+                    firstRegion = region;
+                    region.play();
                     region.on('out', function(e) {
-                        i+=1;
-                        console.log(i);
-                        speakers_regions[i].play();
+                        region.play();
                         console.log("logging ",region," on out event");
                     });
-                    }
-                });
- }
+                }
+            }
+        });
+        if (firstRegion===null) console.warn("There's no region labelled as "+speaker_id);
+      }
+      scope.playSpeaker = function () {
+          console.log("in playSpeaker function ");
+                      var ctrl = scope.$parent.ctrl;
+                      var speaker_id=scope.$parent.speaker;
+                      console.log("speaker_id",speaker_id);
+                      let firstRegion = null;
+                      var speakers_regions=[];
+                      var i =0;
+                      ctrl.iterateRegions(function (region) {
+                          let current_speaker = region.data.speaker;
+                          if (current_speaker[0]==speaker_id){
+                              if (!firstRegion) {
+                                  firstRegion = region;
+                                  region.play();
+                              }
+                              speakers_regions.push(region)
+                          region.on('out', function(e) {
+                              i+=1;
+                              console.log(i);
+                              speakers_regions[i].play();
+                              console.log("logging ",region," on out event");
+                          });
+                          }
+                      });
+       }
 
-    scope.playStop = function () {
+      scope.playStop = function () {
 
-      console.log("in playStop function ")
-      //ctrl.playSpeaker()
-      scope.isPlaying ? stop() : play();
-    }
+        console.log("in playStop function ")
+        //ctrl.playSpeaker()
+        scope.isPlaying ? stop() : play();
+      }
   }
 }
 }
