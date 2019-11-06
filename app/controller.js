@@ -372,8 +372,10 @@ class MainController {
             elem.style.top = 100 / numOfFiles * parseInt(region.data.fileIndex) + "%";
 
             // unset handlers manual style
-            elem.children[0].removeAttribute('style');
-            elem.children[1].removeAttribute('style');
+            if (elem.children.length) {
+               elem.children[0].removeAttribute('style');
+               elem.children[1].removeAttribute('style');
+            }
 
             // region.color = self.filesData[region.data.fileIndex].legend[region.data.speaker];
             // if (region.data.speaker !== 'EDER') {
@@ -1133,8 +1135,7 @@ class MainController {
                         words: monologue.words
                     },
                     drag: false,
-                    //TODO : user should not be able to resize regions, see issue #35 https://github.com/gong-io/gecko/issues/35
-                    //resize:false,
+                    resize:self.applicationModes.VANILLA,
                     minLength: constants.MINIMUM_LENGTH
                 });
 
