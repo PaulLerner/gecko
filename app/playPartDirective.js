@@ -106,14 +106,16 @@ export function playPartDirective() {
         let firstRegion = null;
         ctrl.iterateRegions(function (region) {
             let current_speaker = region.data.speaker;
+
             if (current_speaker[0]==speaker_id){
                 if (!firstRegion) {
                     firstRegion = region;
-                    region.play();
-                    region.on('out', function(e) {
+                    const [speaker_regions, region_index] = ctrl.getSpeakerRegions(region);
+                    speaker_regions[0].play();
+                  /*  region.on('out', function(e) {
                         region.play();
                         console.log("logging ",region," on out event");
-                    });
+                    });*/
                 }
             }
         });

@@ -822,7 +822,7 @@ class MainController {
     }
     getSpeakerRegions(region){
       /**
-      * parameter : region you wish to get speaker regions from.
+      * @param {Region} region you wish to get speaker regions from.
       returns an array of regions of the same speaker as region, along with the index of this region in this array.
       */
       var speaker_regions=[];
@@ -840,7 +840,25 @@ class MainController {
           i+=1;
         }
       });
+      if (this.applicationModes.DIARIZATION){
+        speaker_regions.sort(function(first, second) {
+          //first - second -> asc order
+         return first.data.segment.distance-second.data.segment.distance;
+        });
+        region_index= this.getRegionIndex(speaker_regions, this.selectedRegion);
+      }
       return [speaker_regions, region_index]
+    }
+    getRegionIndex(regions, region){
+      /**
+      * @param {array} regions : array of regions where you suppose region is somewhere
+      * @param {Region} region : the region that is supposedly in regions at an unknown index
+      * @return {number} index : index of the region in regions.
+      */
+      for (var index = 0; index < regions.length; index++){
+        if(regions[index] == region) return index;
+      }
+      return -1;
     }
     jumpRegion(next) {
         var region;

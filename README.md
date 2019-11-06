@@ -18,8 +18,9 @@ The different `APPLICATION_MODE` are defined in `app/constants.js` and the super
 
 ### Interface
 
-In both Diarization and Identification mode, the play button next to speakers ids is linked to the `playFirstRegion` function which plays the first region of that speaker. Moreover, the shortcut "Next region" linked to `jumpRegion` now plays the next region of the same speaker.
-In the future, regions should be played depending on identification confidence and distance to the cluster center in Identification and Diarization mode, respectively.
+In both Vanilla and Identification mode, the play button next to speakers ids is linked to the `playFirstRegion` function which plays the first region of that speaker. Moreover, in Identification mode the shortcut "Next region" linked to `jumpRegion` now plays the next region of the same speaker (idem for "previous region").
+
+In diarization mode, regions are played in ascending order depending on their distance from the cluster center so that the user is able to identify who is supposed to be speaking in cluster A before leaving out wrongly clustered segments. In practice this means that `playFirstRegion` plays the closest region to the cluster center and that `jumpRegion` jumps to the next/previous region w.r.t. distance from the cluster center (see `getSpeakerRegions`).
 
 ### Format
 
