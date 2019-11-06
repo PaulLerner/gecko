@@ -14,9 +14,25 @@
 - [Identification](https://docs.google.com/drawings/d/12vUuOFxWfXZxM5qe1yDWV85nE8UFHDjQnC2yXVOUS-E/edit), which allows the user to correct the cluster label of a wrongly identified cluster.
 
 Both applications will make use of clustering and active learning for a faster annotation process.  
-The different `APPLICATION_MODE` are defined in `app/constants.js` and the user is able to switch `applicationMode` using a dropdown menu binded to the `resetApplicationMode` function.
+The different `APPLICATION_MODE` are defined in `app/constants.js` and the superuser is able to switch `applicationMode` using a dropdown menu binded to the `resetApplicationMode` function. In the future, user should not be able to switch `applicationMode`.
 
-Two features are currently being implemented, see issues [#27](https://github.com/gong-io/gecko/issues/27) and [#28](https://github.com/gong-io/gecko/issues/28).
+### Interface
+
+In both Diarization and Identification mode, the play button next to speakers ids is linked to the `playFirstRegion` function which plays the first region of that speaker. Moreover, the shortcut "Next region" linked to `jumpRegion` now plays the next region of the same speaker.
+In the future, regions should be played depending on identification confidence and distance to the cluster center in Identification and Diarization mode, respectively.
+
+### Format
+
+Pyannote introduces `schemaVersion 3.0` which contains information about the segment which the user modifies in Diarization mode and information about the cluster which the user modifies in Identification mode. An example is available in `samples/demo_pyannote.json` :
+```js
+"segment" :{
+  "id": "monica_geller",
+  "non_id" : ["rachel_green"], //gets appended here when the user de-selects a speaker in diarization mode
+  "annotators" : 0, //number of human annotators, increments when the user saves file / is done.
+  "distance" : 0.38 //distance to the cluster center
+}
+```
+
 
 
 ## Features

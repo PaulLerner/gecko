@@ -1097,7 +1097,16 @@ class MainController {
 
                 var speakerId = "";
                 if (monologue.speaker) {
-                  speakerId = monologue.speaker.id.toString();
+                  if (self.applicationModes.DIARIZATION){
+                    speakerId = monologue.speaker.segment.id.toString();
+                  }
+                  else if (self.applicationModes.IDENTIFICATION){
+                    speakerId = monologue.speaker.cluster.id.toString();
+                  }
+                  else {//default / vanilla
+                    speakerId = monologue.speaker.id.toString();
+                  }
+
                   /* TODO : make this work
                   if (monologue.speaker.name !== null){
                     console.log(monologue.speaker);
@@ -1123,7 +1132,6 @@ class MainController {
                 }
 
                 last_end = end;
-
                 //region.element.innerText = speaker;
                 var region = this.wavesurfer.addRegion({
                     start: start,
@@ -1132,7 +1140,9 @@ class MainController {
                         initFinished: true,
                         fileIndex: fileIndex,
                         speaker: speakerId.split(constants.SPEAKERS_SEPARATOR).filter(x => x), //removing empty speaker
-                        words: monologue.words
+                        words: monologue.words,
+                        segment: monologue.speaker.segment,
+                        cluster: monologue.speaker.cluster,
                     },
                     drag: false,
                     resize:self.applicationModes.VANILLA,
@@ -1437,10 +1447,10 @@ class MainController {
         let changedRegions = [];
         self.iterateRegions(region => {
             let index = region.data.speaker.indexOf(oldText);
-
             if (index > -1) {
                 if (this.applicationModes.IDENTIFICATION){
-                  self.changeSpeakerColor(index, newText, newColor)
+                  //TODO: sometimes doesn't work for some reason
+                  self.changeSpeakerColor(index, newText, newColor);
                 }
                 region.data.speaker[index] = newText;
                 self.addHistory(region);
