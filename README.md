@@ -11,7 +11,7 @@
 
 [Pyannote](https://github.com/pyannote/) aims for two applications :
 - [Diarization](https://docs.google.com/drawings/d/13AS2uW2bVSBcuByzQjBV56xpVXYapeUsEr6FETw2tLQ/edit?usp=sharing), which allows the user to correct segments wrongly assigned to a cluster.
-- [Identification](https://docs.google.com/drawings/d/12vUuOFxWfXZxM5qe1yDWV85nE8UFHDjQnC2yXVOUS-E/edit), which allows the user to correct the cluster label of a wrongly identified cluster.
+- [Identification (more detailed)](https://docs.google.com/drawings/d/1fdJE05MftLyzuuiIiwM3HbS32stWm9D8Lxc0rA1cv9c/edit?usp=sharing), which allows the user to correct the cluster label of a wrongly identified cluster.
 
 Both applications will make use of clustering and active learning for a faster annotation process.  
 The different `APPLICATION_MODE` are defined in `app/constants.js` and the superuser is able to switch `applicationMode` using a dropdown menu binded to the `resetApplicationMode` function. In the future, user should not be able to switch `applicationMode`.
