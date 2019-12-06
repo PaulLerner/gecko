@@ -58,6 +58,7 @@ export const defaultSpeakers = speakers;
 export const MINIMUM_LENGTH = 0.1;
 
 export const SPEAKER_NAME_CHANGED_OPERATION_ID = '1';
+export const REGION_TEXT_CHANGED_OPERATION_ID = '2';
 
 export const NO_SPEAKER_COLOR = 'hsla(0, 0%, 30%, 0.1)';
 
@@ -74,7 +75,7 @@ export const THRESHOLD_MS = 200;
 export const SAVE_THRESHOLD = 60 * 1000
 
 export const ZOOM = 20;
-export const MAX_ZOOM = 1000;
+export const MAX_ZOOM = 500;
 
 export const PANEL_HEIGHT = 300; //px
 

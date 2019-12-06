@@ -11,10 +11,6 @@
     padding: 1em;
 }
 
-.segment-text__word-wrapper {
-    padding: 0 2px;
-}
-
 .row {
     margin-left: 0;
     margin-right: 0;
@@ -193,6 +189,27 @@ a:hover, a:focus {
     color: #812AC1;
 }
 
+.segment-text__word-wrapper:focus {
+    outline: none;
+}
+
+/* .segment-text__word-wrapper {
+    display: inline-block;
+} */
+
+.segment-text__space {
+    
+}
+
+.editable-words {
+    display: block;
+    width: 100%;
+}
+
+.editable-words:focus {
+    outline: none;
+}
+
 .segment-text__word-wrapper.low-confidence {
     font-style: italic;
 }
@@ -215,4 +232,8 @@ kbd {
     box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2), 0 0 0 2px #fff inset;
     background-color: #f7f7f7;
     color: black;
+}
+
+.glyphicon-large {
+    font-size: 20px;
 }
