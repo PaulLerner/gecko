@@ -1270,7 +1270,7 @@ class MainController {
                                 ...w,
                                 uuid: uuidv4()
                             }
-                        })
+                        }),
                         segment: monologue.speaker.segment,
                         cluster: monologue.speaker.cluster,
                     },
