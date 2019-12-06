@@ -1,4 +1,5 @@
 import initWaveSurfer from './wavesurfer.js'
+import uuidv4 from 'uuid/v4'
 
 import * as constants from './constants'
 
@@ -65,7 +66,7 @@ function secondsToMinutes(time) {
 }
 
 class MainController {
-    constructor($scope, $uibModal, dataManager, dataBase, $timeout, $interval) {
+    constructor($scope, $uibModal, dataManager, dataBase, $timeout, $interval, eventBus) {
         this.dataManager = dataManager;
         this.dataBase = dataBase;
         this.$uibModal = $uibModal;
@@ -75,6 +76,7 @@ class MainController {
         this.isServerMode = false
         this.shortcuts = new Shortcuts(this, constants)
         this.shortcuts.bindKeys()
+        this.eventBus = eventBus
     }
 
     loadApp(config) {
@@ -181,6 +183,18 @@ class MainController {
         this.ready = false;
 
         var self = this;
+
+        this.eventBus.on('wordClick', (word, e) => {
+            this.seek(word.start, 'right')
+            e.preventDefault()
+            e.stopPropagation()
+        })
+
+        this.eventBus.on('regionTextChanged', (fileIndex) => {
+            let currentRegion = this.currentRegions[fileIndex]
+            this.addHistory(currentRegion)
+            this.undoStack.push([constants.REGION_TEXT_CHANGED_OPERATION_ID, currentRegion.id])
+        })
 
         document.onkeydown = (e) => {
             if (e.key === 'Escape') {
@@ -474,14 +488,22 @@ class MainController {
         if (this.selectedRegion) {
             const delta = this.selectedRegion.end - this.selectedRegion.start
             const wavesurferWidth = this.wavesurfer.container.offsetWidth
-            const zoomLevel = wavesurferWidth / delta
+
+            let zoomLevel = wavesurferWidth / delta
+
+            if (zoomLevel > constants.MAX_ZOOM){
+                zoomLevel = constants.MAX_ZOOM
+            }
+
             this.wavesurfer.zoom(zoomLevel);
             this.noUpdateZoom = true
             this.zoomLevel = zoomLevel
             this.seek(this.selectedRegion.start)
 
-            const startPosition = this.selectedRegion.start * zoomLevel
-            this.wavesurfer.container.children[0].scrollLeft = startPosition
+            const midPosition = (this.selectedRegion.start + this.selectedRegion.end) / 2 * zoomLevel
+            this.wavesurfer.container.children[0].scrollLeft = midPosition - (wavesurferWidth / 2)
+            // const startPosition = this.selectedRegion.start * zoomLevel
+            // this.wavesurfer.container.children[0].scrollLeft = startPosition
         }
     }
 
@@ -651,7 +673,8 @@ class MainController {
             this.regionsHistory[region.id] = [];
         }
 
-        this.regionsHistory[region.id].push(this.copyRegion(region));
+        const regionCopy = this.copyRegion(region)
+        this.regionsHistory[region.id].push(regionCopy);
     }
 
     regionPositionUpdated(region) {
@@ -759,6 +782,7 @@ class MainController {
         }
 
         var regionIds = this.undoStack.pop();
+        let needUpdateEditable = false
 
         if (regionIds[0] === constants.SPEAKER_NAME_CHANGED_OPERATION_ID) {
             let fileIndex = regionIds[1];
@@ -768,6 +792,9 @@ class MainController {
             self.updateLegend(fileIndex, newSpeaker, oldSpeaker);
 
             regionIds = regionIds[4];
+        } else if (regionIds[0] === constants.REGION_TEXT_CHANGED_OPERATION_ID) {
+            needUpdateEditable = true
+            regionIds = [regionIds[1]]
         }
 
 
@@ -785,6 +812,9 @@ class MainController {
                 this.__deleteRegion(this.getRegion(regionId));
             } else {
                 this.wavesurfer.regions.list[regionId].update(this.copyRegion(history[history.length - 1]));
+                if (needUpdateEditable && this.selectedRegion && this.selectedRegion.id === regionId) {
+                    this.$timeout(() => this.eventBus.trigger('resetEditableWords'))
+                }
             }
         }
 
@@ -826,7 +856,13 @@ class MainController {
 
     calcCurrentRegions() {
         for (let i = 0; i < this.filesData.length; i++) {
-            this.currentRegions[i] = this.getCurrentRegion(i);
+            const currentRegion = this.getCurrentRegion(i);
+            if (currentRegion && currentRegion !== this.currentRegions[i]) {
+                this.$timeout(() => this.eventBus.trigger('resetEditableWords', currentRegion))
+            } else if (!currentRegion) {
+                this.$timeout(() => this.eventBus.trigger('cleanEditableDOM', i))
+            }
+            this.currentRegions[i] = currentRegion
         }
 
         this.$scope.$$postDigest(this.updateSelectedWordInFiles.bind(this));
@@ -846,13 +882,15 @@ class MainController {
     }
 
     selectRegion(region) {
-        this.deselectRegion();
-
         if (!region) {
             region = this.getCurrentRegion(this.selectedFileIndex);
         }
 
-        if (!region) return;
+        this.deselectRegion();
+
+        if (!region) { 
+            return
+        }
 
         region.element.classList.add("selected-region");
 
@@ -945,7 +983,7 @@ class MainController {
 
         words.forEach(function (word, i) {
             if (word.start <= time && word.end >= time) {
-                let newSelectedWord = document.getElementById('word_{0}_{1}'.format(fileIndex, (i).toString()));
+                let newSelectedWord = document.querySelector(`[word-uuid="${word.uuid}"]`)
 
                 if (newSelectedWord) {
                     newSelectedWord.classList.add('selected-word');
@@ -1122,7 +1160,12 @@ class MainController {
                         initFinished: true,
                         fileIndex: fileIndex,
                         speaker: speakerId.split(constants.SPEAKERS_SEPARATOR).filter(x => x), //removing empty speaker
-                        words: monologue.words
+                        words: monologue.words.map((w) => {
+                            return {
+                                ...w,
+                                uuid: uuidv4()
+                            }
+                        })
                     },
                     drag: false,
                     minLength: constants.MINIMUM_LENGTH
@@ -1285,7 +1328,7 @@ class MainController {
 
                 if (!this.checkValidRegions(i)) return;
 
-                this.dataManager.saveDataToServer(converter(i), filename);
+                this.dataManager.saveDataToServer(converter(i), { filename, s3Subfolder: current.s3Subfolder });
             }
         }
     }
@@ -1890,28 +1933,6 @@ class MainController {
         });
     }
 
-    wordChanged(regionIndex, wordIndex) {
-        let currentRegion = this.currentRegions[regionIndex];
-        let newWord = currentRegion.data.words[wordIndex];
-        newWord.wasEdited = true;
-        if (newWord.text.length) {
-            let newWordSplited = newWord.text.split(' ');
-            if (newWordSplited.length > 1) {
-                currentRegion.data.words[wordIndex].text = newWordSplited[0];
-                for (let i = newWordSplited.length - 1; i >= 1; i--) {
-                    let wordCopy = Object.assign({}, currentRegion.data.words[wordIndex]);
-                    wordCopy.text = newWordSplited[i];
-                    currentRegion.data.words.splice(wordIndex + 1, 0, wordCopy);
-                }
-            }
-        } else {
-            currentRegion.data.words.splice(wordIndex, 1);
-        }
-
-        this.addHistory(currentRegion);
-        this.undoStack.push([currentRegion.id]);
-    }
-
     seek(time, leanTo) {
         let offset = 0;
 
@@ -1923,17 +1944,6 @@ class MainController {
         }
 
         this.wavesurfer.seekTo((time + offset) / this.wavesurfer.getDuration());
-    }
-
-    wordClick(word, e) {
-        const isMacMeta = window.navigator.platform === 'MacIntel' && e.metaKey
-        const isOtherControl = window.navigator.platform !== 'MacIntel' && e.ctrlKey
-        const isDownCtrl = isMacMeta || isOtherControl
-        if (isDownCtrl) {
-            this.seek(word.start, 'right');
-            e.preventDefault()
-            e.stopPropagation()
-        }
     }
 
     editableKeysMapping(regionIndex, wordIndex, keys, which) {
@@ -1996,7 +2006,7 @@ class MainController {
 }
 
 MainController
-    .$inject = ['$scope', '$uibModal', 'dataManager', 'dataBase', '$timeout','$interval'];
+    .$inject = ['$scope', '$uibModal', 'dataManager', 'dataBase', '$timeout','$interval', 'eventBus'];
 export {
     MainController
 }
