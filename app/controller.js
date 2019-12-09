@@ -209,6 +209,10 @@ class MainController {
             let currentRegion = this.currentRegions[fileIndex]
             this.addHistory(currentRegion)
             this.undoStack.push([constants.REGION_TEXT_CHANGED_OPERATION_ID, currentRegion.id])
+            this.eventBus.trigger('geckoChanged', {
+                event: 'regionTextChanged',
+                data: currentRegion
+            })
         })
 
         document.onkeydown = (e) => {
@@ -471,6 +475,10 @@ class MainController {
 
             self.updateOtherRegions.clear()
             self.undoStack.push(multiEffect);
+            this.eventBus.trigger('geckoChanged', {
+                event: 'regionUpdateEnd',
+                data: region
+            })
 
             self.$scope.$evalAsync();
 
@@ -1319,6 +1327,10 @@ class MainController {
 
         //the list order matters!
         this.undoStack.push([first.id, second.id, region.id])
+        this.eventBus.trigger('geckoChanged', {
+            event: 'splitSegment',
+            data: [first.id, second.id, region.id]
+        })
         this.regionsHistory[region.id].push(null);
     }
 
@@ -1331,6 +1343,11 @@ class MainController {
         this.regionsHistory[region.id].push(null);
 
         this.__deleteRegion(region);
+
+        this.eventBus.trigger('geckoChanged', {
+            event: 'deleteRegion',
+            data: region
+        })
 
         this.updateView();
     }
@@ -1555,7 +1572,10 @@ class MainController {
 
         self.addHistory(self.selectedRegion);
         self.undoStack.push([self.selectedRegion.id]);
-
+        this.eventBus.trigger('geckoChanged', {
+            event: 'speakerChanged',
+            data: speaker
+        })
         this.regionUpdated(self.selectedRegion);
     }
 
@@ -1595,6 +1615,10 @@ class MainController {
 
         // notify the undo mechanism to change the legend as well as the regions
         self.undoStack.push([constants.SPEAKER_NAME_CHANGED_OPERATION_ID, self.selectedFileIndex, oldText, newText,oldColor, changedRegions]);
+        this.eventBus.trigger('geckoChanged', {
+            event: 'speakerNameChanged',
+            data: [self.selectedFileIndex, oldText, newText,oldColor, changedRegions]
+        })
     }
 
     updateLegend(fileIndex, oldSpeaker, newSpeaker) {
