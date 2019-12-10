@@ -17,7 +17,7 @@ var config = {
             groupWords: true
         }
     },
-    applicationMode:constants.APPLICATION_MODE.IDENTIFICATION,
+    applicationMode:constants.APPLICATION_MODE.VANILLA,
     slider: "#slider",
     isServerMode: false
 }

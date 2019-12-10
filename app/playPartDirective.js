@@ -7,6 +7,7 @@ export function playPartDirective() {
     scope: {
       'audioContext': '=',
       'audioBackend': '=',
+      'wavesurfer': '=',
       'rep': '=representative'
     },
     templateUrl: playPartTemplate,
@@ -96,31 +97,55 @@ export function playPartDirective() {
         scope.isPlaying = false;
       }
 
+      const playRegion = (currentRegion, nextRegionIndex) => {
+        currentRegion.on('out', null)
+        if (nextRegionIndex < scope.speakerRegions.length - 1) {
+          const nextRegion = scope.speakerRegions[nextRegionIndex]
+          nextRegion.on('out', () => playRegion(nextRegion, nextRegionIndex + 1))
+          seek(nextRegion.start)
+        }
+      }
+
+      const seek = (time) => {
+        scope.wavesurfer.seekTo((time) / scope.wavesurfer.getDuration());
+      }
+
       scope.playFirstRegion  = function () {
         /**
         *plays first region (might redefine what 'first' means later on) of the speaker the user clicked on
         *warns when no region labelled as scope.$parent.speaker were found
         */
+        scope.speakerRegions = []
         var ctrl = scope.$parent.ctrl;
         var speaker_id=scope.$parent.speaker;
-        let firstRegion = null;
-        ctrl.iterateRegions(function (region) {
-            let current_speaker = region.data.speaker;
 
-            if (current_speaker[0]==speaker_id){
-                if (!firstRegion) {
-                    firstRegion = region;
-                    const [speaker_regions, region_index] = ctrl.getSpeakerRegions(region);
-                    speaker_regions[0].play();
-                  /*  region.on('out', function(e) {
-                        region.play();
-                        console.log("logging ",region," on out event");
-                    });*/
-                }
+        //console.log('play', scope.wavesurfer)
+        //console.log("in playSpeaker function ");
+        var ctrl = scope.$parent.ctrl;
+        var speaker_id=scope.$parent.speaker;
+        //console.log("speaker_id",speaker_id);
+        var first_region=null
+        ctrl.iterateRegions(function (region) {
+          let current_speaker = region.data.speaker;
+          if (current_speaker[0] === speaker_id) {
+            console.log(current_speaker[0])
+            scope.speakerRegions.push(region)
+            if (!first_region){
+              first_region=region
+              seek(region.start)
             }
+
+          }
         });
-        if (firstRegion===null) console.warn("There's no region labelled as "+speaker_id);
+        if (scope.speakerRegions.length) {
+          scope.speakerRegions[0].on('out', () => playRegion(scope.speakerRegions[0], 1))
+          //if (current_speaker[0] === speaker_id)
+          scope.wavesurfer.play()
+        } else {
+          console.warn("There's no region labelled as "+speaker_id);
+        }
       }
+
       scope.playSpeaker = function () {
           console.log("in playSpeaker function ");
                       var ctrl = scope.$parent.ctrl;

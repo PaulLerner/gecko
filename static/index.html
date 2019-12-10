@@ -401,6 +401,7 @@
                                 </select>
                                 <div class="pull-right">
                                     <play-part audio-context="ctrl.audioContext" audio-backend="ctrl.wavesurfer.backend"
+                                                wavesurfer="ctrl.wavesurfer"
                                                representative="ctrl.filesData[ctrl.selectedFileIndex].reps[speaker]"></play-part>
                                     <input type="color" ng-model="color" class="pull-right"
                                            ng-change="ctrl.changeSpeakerColor(ctrl.selectedFileIndex, speaker, color)"/>
