@@ -962,6 +962,10 @@ class MainController {
         if (region) {
             region.play();
             this.updateVideoPlayer();
+            region.on('out', () => {
+              this.updateVideoPlayer();
+              this.videoPlayer && this.videoPlayer.pause();
+            })
         }
     }
     updateVideoPlayer() {
@@ -1312,11 +1316,13 @@ class MainController {
     playRegion() {
         if (this.selectedRegion) {
             this.selectedRegion.play();
+            //this.updateVideoPlayer();
         }
         // play silence region
         else {
             var silence = this.calcSilenceRegion();
             this.wavesurfer.play(silence.start, silence.end);
+            //this.updateVideoPlayer();
         }
     }
 
