@@ -66,14 +66,16 @@ function secondsToMinutes(time) {
 }
 
 class MainController {
-    constructor($scope, $uibModal, dataManager, dataBase, $timeout, $interval, eventBus) {
+    constructor($scope, $uibModal, dataManager, dataBase, eventBus, $timeout, $interval) {
         this.dataManager = dataManager;
         this.dataBase = dataBase;
+        this.eventBus = eventBus
         this.$uibModal = $uibModal;
         this.$scope = $scope;
         this.$timeout = $timeout
         this.$interval = $interval
         this.isServerMode = false
+        this.proofReadingView = false
         this.shortcuts = new Shortcuts(this, constants)
         this.shortcuts.bindKeys()
         this.eventBus = eventBus
@@ -174,6 +176,8 @@ class MainController {
         this.regionsHistory = {};
         this.updateOtherRegions = new Set();
 
+        this.allRegions = []
+
         this.isRegionClicked = false;
         this.isTextChanged = false;
         this.wavesurfer = initWaveSurfer();
@@ -190,10 +194,17 @@ class MainController {
             e.stopPropagation()
         })
 
-        this.eventBus.on('regionTextChanged', (fileIndex) => {
-            let currentRegion = this.currentRegions[fileIndex]
+        this.eventBus.on('regionTextChanged', (regionId) => {
+            let currentRegion = this.getRegion(regionId)
             this.addHistory(currentRegion)
-            this.undoStack.push([constants.REGION_TEXT_CHANGED_OPERATION_ID, currentRegion.id])
+            this.undoStack.push([constants.REGION_TEXT_CHANGED_OPERATION_ID, regionId])
+        })
+
+        this.eventBus.on('editableFocus', (editableRegion, fileIndex) => {
+            this.selectedRegion = editableRegion
+            this.selectedFileIndex = fileIndex
+            this.seek(editableRegion.start, 'right')
+            //this.eventBus.trigger('proofReadingScroll', editableRegion, fileIndex)
         })
 
         document.onkeydown = (e) => {
@@ -408,7 +419,7 @@ class MainController {
             }
             //TODO: creating a new word is bad if we want to keep the segment clear.
             if (!region.data.words || region.data.words.length === 0) {
-                region.data.words = [{start: region.start, end: region.end, text: ""}];
+                region.data.words = [{start: region.start, end: region.end, text: "", uuid: uuidv4()}];
             }
 
             var elem = region.element;
@@ -813,12 +824,15 @@ class MainController {
             } else {
                 this.wavesurfer.regions.list[regionId].update(this.copyRegion(history[history.length - 1]));
                 if (needUpdateEditable && this.selectedRegion && this.selectedRegion.id === regionId) {
-                    this.$timeout(() => this.eventBus.trigger('resetEditableWords'))
+                    this.$timeout(() => this.eventBus.trigger('resetEditableWords', { id: regionId }))
                 }
             }
         }
 
-        this.updateView();
+        this.updateView()
+        this.$timeout(() => {
+            this.eventBus.trigger('rebuildProofReading')
+        })
         this.$scope.$evalAsync();
     }
 
@@ -826,8 +840,31 @@ class MainController {
         this.selectRegion();
         this.silence = this.calcSilenceRegion();
         this.setCurrentTime();
+        this.setAllRegions()
         this.calcCurrentRegions();
         this.updateSelectedDiscrepancy();
+    }
+
+    setAllRegions() {
+        for (let i = 0; i < this.filesData.length; i++) {
+            const ret = []
+            this.iterateRegions((r) => {
+                ret.push(r)
+            }, i, true)
+            this.allRegions[i] = ret.reduce((acc, current) => {
+                const last = acc[acc.length - 1]
+                if (last && last.length) {
+                    if (angular.equals(last[0].data.speaker, current.data.speaker)) {
+                        last.push(current)
+                    } else {
+                        acc.push([ current ])
+                    }
+                } else {
+                    acc.push([ current ])
+                }
+                return acc
+            }, [])
+        }      
     }
 
     calcCurrentFileIndex(e) {
@@ -858,7 +895,18 @@ class MainController {
         for (let i = 0; i < this.filesData.length; i++) {
             const currentRegion = this.getCurrentRegion(i);
             if (currentRegion && currentRegion !== this.currentRegions[i]) {
-                this.$timeout(() => this.eventBus.trigger('resetEditableWords', currentRegion))
+                if (this.proofReadingView) {
+                    if (currentRegion !== this.selectedRegion) {
+                        this.$timeout(() => this.eventBus.trigger('resetEditableWords', currentRegion))
+                    }
+
+                    if (this.isPlaying) {
+                        this.eventBus.trigger('proofReadingScrollToRegion', currentRegion)
+                    }
+                } else {
+                    this.$timeout(() => this.eventBus.trigger('resetEditableWords', currentRegion))
+                }
+                
             } else if (!currentRegion) {
                 this.$timeout(() => this.eventBus.trigger('cleanEditableDOM', i))
             }
@@ -1153,7 +1201,7 @@ class MainController {
                 last_end = end;
 
                 //region.element.innerText = speaker;
-                var region = this.wavesurfer.addRegion({
+                const region = this.wavesurfer.addRegion({
                     start: start,
                     end: end,
                     data: {
@@ -1211,6 +1259,11 @@ class MainController {
         //the list order matters!
         this.undoStack.push([first.id, second.id, region.id])
         this.regionsHistory[region.id].push(null);
+
+        this.$timeout(() => {
+            this.setAllRegions()
+            this.eventBus.trigger('rebuildProofReading', this.selectedRegion, this.selectedFileIndex)
+        })
     }
 
     deleteRegionAction(region) {
@@ -1315,20 +1368,25 @@ class MainController {
         }
     }
 
-    async saveS3(extension, converter) {
+    async saveS3() {
         try {
             await this.dataBase.clearDB()
         } catch (e) {
         }
+        const fileNameSpl = this.filesData[0].filename.split('.')
+        const extension = fileNameSpl[fileNameSpl.length - 1]
+        const converter = convertTextFormats(extension, this, config.parserOptions)
         for (var i = 0; i < this.filesData.length; i++) {
             var current = this.filesData[i];
             if (current.data) {
-                // convert the filename to "rttm" extension
                 var filename = current.filename.substr(0, current.filename.lastIndexOf('.')) + "." + extension;
 
                 if (!this.checkValidRegions(i)) return;
+                try {
+                    this.dataManager.saveDataToServer(converter(i), { filename, s3Subfolder: current.s3Subfolder });
+                } catch (e) {
 
-                this.dataManager.saveDataToServer(converter(i), { filename, s3Subfolder: current.s3Subfolder });
+                }
             }
         }
     }
@@ -1338,20 +1396,8 @@ class MainController {
             this.filesData[0].filename + "_VS_" + this.filesData[1].filename + ".json");
     }
 
-    saveData() {
-        for (var i = 0; i < this.filesData.length; i++) {
-            const current = this.filesData[i]
-            const splName = current.filename.split('.')
-            const extension = splName[splName.length - 1]
-            const saveFunction = this.isServerMode ? this.saveS3.bind(this) : this.save.bind(this)
-            saveFunction(extension, convertTextFormats(extension, this, config.parserOptions))
-        }
-    }
-
     saveClient(extension) {
-        for (var i = 0; i < this.filesData.length; i++) {
-            this.save(extension, convertTextFormats(extension, this, config.parserOptions))
-        }
+        this.save(extension, convertTextFormats(extension, this, config.parserOptions))
     }
 
     checkValidRegions(fileIndex) {
@@ -1439,6 +1485,10 @@ class MainController {
         self.undoStack.push([self.selectedRegion.id]);
 
         this.regionUpdated(self.selectedRegion);
+        this.$timeout(() => {
+            this.setAllRegions()
+            this.eventBus.trigger('rebuildProofReading', this.selectedRegion, this.selectedFileIndex)
+        })
     }
 
     speakerNameChanged(oldText, newText) {
@@ -1557,6 +1607,8 @@ class MainController {
             backdrop: 'static',
             controller: async ($scope, $uibModalInstance, $timeout, zoom) => {
                 $scope.draftAvailable = false
+                $scope.newSegmentFiles = [undefined];
+                $scope.isLoading = false
                 const draftCounts = await this.dataBase.getCounts()
                 if (draftCounts) {
                     self.$timeout(() => {
@@ -1564,6 +1616,9 @@ class MainController {
                     })
                 } 
                 $scope.runDemo = async () => {
+                    if ($scope.isLoading) {
+                        return
+                    }
                     const demoFile = {
                         filename: 'demo.json',
                         data: self.handleTextFormats('demo.json', JSON.stringify(demoJson))
@@ -1572,6 +1627,7 @@ class MainController {
                     self.filesData = [
                         demoFile
                     ];
+                    $scope.isLoading = true
                     await this.dataBase.addFile({
                         fileName: demoFile.filename,
                         fileData: demoFile.data
@@ -1589,20 +1645,24 @@ class MainController {
                         fileData: res.audioFile
                     })
                     self.wavesurfer.loadBlob(res.audioFile);
+                    $scope.isLoading = false
                     $uibModalInstance.close(false);
                 };
 
                 $scope.loadDraft = async () => {
+                    if ($scope.isLoading) {
+                        return
+                    }
                     self.init()
                     const audio = self.dataBase.getLastMediaFile()
                     const files = self.dataBase.getFiles()
+                    $scope.isLoading = true
                     const res = await Promise.all([ audio, files ])
                     self.loadFromDB(res)
+                    $scope.isLoading = false
 
                     $uibModalInstance.close(false);
                 };
-
-                $scope.newSegmentFiles = [undefined];
 
                 $scope.ok = function () {
                     // Take only selected files
@@ -2003,10 +2063,23 @@ class MainController {
         }
         this.showSpectrogram = !this.showSpectrogram
     }
+
+    toggleProofReadingView () {
+        this.proofReadingView = !this.proofReadingView
+        if (!this.proofReadingView) {
+            this.$timeout(() => this.eventBus.trigger('resetEditableWords'))
+        } else {
+            this.$timeout(() => {
+                for (let i = 0; i < this.filesData.length; i++) {
+                    this.eventBus.trigger('proofReadingScrollToSelected')
+                }
+            })
+        }
+    }
 }
 
 MainController
-    .$inject = ['$scope', '$uibModal', 'dataManager', 'dataBase', '$timeout','$interval', 'eventBus'];
+    .$inject = ['$scope', '$uibModal', 'dataManager', 'dataBase', 'eventBus', '$timeout','$interval'];
 export {
     MainController
 }
