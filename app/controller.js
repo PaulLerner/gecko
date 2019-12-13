@@ -389,10 +389,7 @@ class MainController {
         });
 
         this.wavesurfer.on('seek', function (e) {
-            self.updateView();
-            self.videoPlayer && self.videoPlayer.currentTime(self.wavesurfer.getCurrentTime())
-
-            self.$scope.$evalAsync();
+            self.updateVideoPlayer()
         });
 
         this.wavesurfer.on("region-created", function (region) {
@@ -864,7 +861,7 @@ class MainController {
                 }
                 return acc
             }, [])
-        }      
+        }
     }
 
     calcCurrentFileIndex(e) {
@@ -906,7 +903,7 @@ class MainController {
                 } else {
                     this.$timeout(() => this.eventBus.trigger('resetEditableWords', currentRegion))
                 }
-                
+
             } else if (!currentRegion) {
                 this.$timeout(() => this.eventBus.trigger('cleanEditableDOM', i))
             }
@@ -936,7 +933,7 @@ class MainController {
 
         this.deselectRegion();
 
-        if (!region) { 
+        if (!region) {
             return
         }
 
@@ -964,7 +961,13 @@ class MainController {
 
         if (region) {
             region.play();
+            this.updateVideoPlayer();
         }
+    }
+    updateVideoPlayer() {
+      this.updateView();
+      this.videoPlayer && this.videoPlayer.currentTime(this.wavesurfer.getCurrentTime())
+      this.$scope.$evalAsync();
     }
 
     jumpNextDiscrepancy() {
@@ -1614,7 +1617,7 @@ class MainController {
                     self.$timeout(() => {
                         $scope.draftAvailable = true
                     })
-                } 
+                }
                 $scope.runDemo = async () => {
                     if ($scope.isLoading) {
                         return
@@ -1836,7 +1839,7 @@ class MainController {
     async loadFromDB (res) {
         const mediaFile = res[0]
         const files = res[1]
-        
+
         if (files && files.length) {
             this.filesData = files.map((f) => {
                 return {
