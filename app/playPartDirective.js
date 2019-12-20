@@ -102,7 +102,8 @@ export function playPartDirective() {
         if (nextRegionIndex < scope.speakerRegions.length - 1) {
           const nextRegion = scope.speakerRegions[nextRegionIndex]
           nextRegion.on('out', () => playRegion(nextRegion, nextRegionIndex + 1))
-          seek(nextRegion.start)
+          //seek(nextRegion.start)
+          scope.wavesurfer.setCurrentTime(nextRegion.start);
         }
       }
 
@@ -115,69 +116,34 @@ export function playPartDirective() {
         *plays first region (might redefine what 'first' means later on) of the speaker the user clicked on
         *warns when no region labelled as scope.$parent.speaker were found
         */
-        scope.speakerRegions = []
-        var ctrl = scope.$parent.ctrl;
-        var speaker_id=scope.$parent.speaker;
-
-        //console.log('play', scope.wavesurfer)
-        //console.log("in playSpeaker function ");
+        scope.wavesurfer.stop();
+        scope.wavesurfer.seekTo(0);
+        scope.speakerRegions = [];
         var ctrl = scope.$parent.ctrl;
         var speaker_id=scope.$parent.speaker;
         //console.log("speaker_id",speaker_id);
-        var first_region=null
+        var first_region=null;
         ctrl.iterateRegions(function (region) {
           let current_speaker = region.data.speaker;
           if (current_speaker[0] === speaker_id) {
-            console.log(current_speaker[0])
-            scope.speakerRegions.push(region)
+            scope.speakerRegions.push(region);
             if (!first_region){
-              first_region=region
-              seek(region.start)
+              first_region=region;
+              //seek(region.start);
+              scope.wavesurfer.setCurrentTime(region.start);
             }
 
           }
         });
         if (scope.speakerRegions.length) {
-          scope.speakerRegions[0].on('out', () => playRegion(scope.speakerRegions[0], 1))
+          scope.speakerRegions[0].on('out', () => playRegion(scope.speakerRegions[0], 1));
           //if (current_speaker[0] === speaker_id)
-          scope.wavesurfer.play()
+          scope.wavesurfer.play();
         } else {
           console.warn("There's no region labelled as "+speaker_id);
         }
       }
 
-      scope.playSpeaker = function () {
-          console.log("in playSpeaker function ");
-                      var ctrl = scope.$parent.ctrl;
-                      var speaker_id=scope.$parent.speaker;
-                      console.log("speaker_id",speaker_id);
-                      let firstRegion = null;
-                      var speakers_regions=[];
-                      var i =0;
-                      ctrl.iterateRegions(function (region) {
-                          let current_speaker = region.data.speaker;
-                          if (current_speaker[0]==speaker_id){
-                              if (!firstRegion) {
-                                  firstRegion = region;
-                                  region.play();
-                              }
-                              speakers_regions.push(region)
-                          region.on('out', function(e) {
-                              i+=1;
-                              console.log(i);
-                              speakers_regions[i].play();
-                              console.log("logging ",region," on out event");
-                          });
-                          }
-                      });
-       }
-
-      scope.playStop = function () {
-
-        console.log("in playStop function ")
-        //ctrl.playSpeaker()
-        scope.isPlaying ? stop() : play();
-      }
   }
 }
 }
