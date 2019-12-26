@@ -1094,26 +1094,6 @@ class MainController {
 
     checkValidRegions(fileIndex) {
         var self = this;
-        try {
-            var last_end = 0;
-            this.iterateRegions((region) => {
-                if (region.end <= region.start) {
-                    throw `Negative duration in file ${self.filesData[fileIndex].filename}\n Start: ${region.start}\n End: ${region.end}`
-                }
-
-                if (last_end > region.start + constants.TOLERANCE) {
-                    throw `Overlapping in file: ${self.filesData[fileIndex].filename}. \n Time: ${last_end.toFixed(2)}`;
-                }
-                last_end = region.end;
-            }, fileIndex, true)
-        } catch (err) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Check regions error',
-                text: err
-            })
-            return false;
-        }
         return true;
     }
 
