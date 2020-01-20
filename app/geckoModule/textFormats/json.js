@@ -16,8 +16,16 @@ export const parse = (data) => {
             monologue.speaker = "";
         }
 
-        if (monologue.start === undefined) monologue.start = monologue.terms[0].start;
-        if (monologue.end === undefined) monologue.end = monologue.terms.slice(-1)[0].end;
+        if (monologue.start === undefined){
+          if (monologue.terms === undefined) continue;
+          if (monologue.terms[0] === undefined) continue;
+          monologue.start = monologue.terms[0].start;
+         }
+        if (monologue.end === undefined) {
+          if (monologue.terms === undefined) continue;
+          if (monologue.terms.slice(-1)[0] === undefined) continue;
+          monologue.end = monologue.terms.slice(-1)[0].end;
+        }
 
 
         // if (!monologue.text && monologue.terms) {

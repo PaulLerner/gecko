@@ -760,7 +760,7 @@ class MainController {
         } else {
             this.selectedFileIndex = 0
         }
-        
+
     }
 
     deselectRegion(region) {
@@ -1036,6 +1036,17 @@ class MainController {
                 last_end = end;
 
                 //region.element.innerText = speaker;
+                if (monologue.words === undefined){
+                  var m_words = undefined
+                }
+                else {
+                  var m_words=monologue.words.map((w) => {
+                      return {
+                          ...w,
+                          uuid: uuidv4()
+                      }
+                  })
+                }
                 const region = this.wavesurfer.addRegion({
                     start: start,
                     end: end,
@@ -1043,12 +1054,7 @@ class MainController {
                         initFinished: true,
                         fileIndex: fileIndex,
                         speaker: speakerId.split(constants.SPEAKERS_SEPARATOR).filter(x => x), //removing empty speaker
-                        words: monologue.words.map((w) => {
-                            return {
-                                ...w,
-                                uuid: uuidv4()
-                            }
-                        })
+                        words: m_words
                     },
                     drag: false,
                     minLength: constants.MINIMUM_LENGTH
@@ -1159,9 +1165,9 @@ class MainController {
             this.cancelPlayRegionClick = true
             return
         }
-    
+
         this.playRegionClicked = true
-    
+
         this.$timeout(() => {
             if (this.cancelPlayRegionClick) {
                 this.cancelPlayRegionClick = false;
@@ -1522,7 +1528,7 @@ class MainController {
     async loadFromDB (res) {
         const mediaFile = res.mediaFile
         const files = res.files
-        
+
         if (files && files.length) {
             this.filesData = files.map((f) => {
                 return {
