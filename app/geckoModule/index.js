@@ -5,6 +5,8 @@ import modal from 'angular-ui-bootstrap/src/modal'
 import collapse from 'angular-ui-bootstrap/src/collapse'
 import tooltip from 'angular-ui-bootstrap/src/tooltip'
 
+import toaster from 'angularjs-toaster/index'
+
 import { MainController } from './controller.js'
 
 import {
@@ -21,7 +23,8 @@ import {
     playPartDirective,
     editableDirective,
     Checklist,
-    fileRead 
+    fileRead,
+    contextMenu
 } from './directives'
 
 import { 
@@ -32,7 +35,7 @@ import {
     toMMSS
 } from './filters'
 
-const geckoModule = angular.module('gecko', [ dropdown, modal, collapse, tooltip ])
+const geckoModule = angular.module('gecko', [ dropdown, modal, collapse, tooltip, toaster ])
 
 geckoModule.controller('MainController', MainController);
 
@@ -48,6 +51,7 @@ geckoModule.directive('editable', editableDirective)
 geckoModule.directive('playPart', playPartDirective)
 geckoModule.directive('checklistModel', Checklist)
 geckoModule.directive('fileread', fileRead)
+geckoModule.directive('contextMenu', contextMenu)
 
 geckoModule.filter('mulSearch', mulSearch)
 geckoModule.filter('speakersFilter', speakersFilter)

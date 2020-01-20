@@ -1,14 +1,20 @@
 import hotkeys from 'hotkeys-js'
 
 import * as constants from './constants'
+import { splitLegendSpeakers } from './utils'
 
 class Shortcuts {
     constructor (app) {
         this.app = app
         this.isMac = navigator.platform.indexOf('Mac') > -1
         const digits = [...Array(9)]
-        const digitsString = digits.map((d, idx) => `command+shift+${idx + 1},ctrl+shift+${idx + 1}`).join(',')
+        const digitsString = digits.map((d, idx) => `command+${idx + 1},ctrl+${idx + 1}`).join(',')
+        const digitsRegularString = digits.map((d, idx) => `alt+${idx + 1}`).join(',')
         this.hotkeysDesc = [
+            {
+                keyDesc: this.isMac ? '<kbd>⌘</kbd>+<kbd>S</kbd>' : '<kbd>Ctrl</kbd>+<kbd>S</kbd>',
+                desc: 'Save a draft'
+            },
             {
                 keyDesc: this.isMac ? '<kbd>Alt</kbd>+<kbd>Space</kbd>' : '<kbd>Ctrl</kbd>+<kbd>Space</kbd>',
                 desc: 'Play/pause'
@@ -38,8 +44,12 @@ class Shortcuts {
                 desc: 'Undo'
             },
             {
-                keyDesc: this.isMac ? '<kbd>⌘</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd>...<kbd>⌘</kbd>+<kbd>Shift</kbd>+<kbd>9</kbd>' : '<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd>...<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>9</kbd>',
-                desc: 'Select annotation'
+                keyDesc: this.isMac ? '<kbd>⌘</kbd>+<kbd>1</kbd>...<kbd>⌘</kbd>+<kbd>9</kbd>' : '<kbd>Ctrl</kbd>+<kbd>1</kbd>...<kbd>Ctrl</kbd>+<kbd>9</kbd>',
+                desc: 'Select fixed label'
+            },
+            {
+                keyDesc: '<kbd>Alt</kbd>+<kbd>1</kbd>...<kbd>Alt</kbd>+<kbd>9</kbd>',
+                desc: 'Select non-fixed label'
             },
             {
                 keyDesc: this.isMac ? '<kbd>⌘</kbd>+<kbd>Click</kbd> on a word' : '<kbd>Ctrl</kbd>+<kbd>Click</kbd> on a word',
@@ -88,12 +98,20 @@ class Shortcuts {
                 keys: 'ctrl+z,command+z'
             },
             {
+                handler: (e) => this.saveHandler(e),
+                keys: 'ctrl+s,command+s'
+            },
+            {
                 handler: (e) => this.deleteRegionHandler(e),
                 keys: 'ctrl+backspace,ctrl+delete,command+backspace,command+delete'
             },
             {
                 handler: (e) => this.digitHandler(e),
                 keys: digitsString
+            },
+            {
+                handler: (e) => this.digitHandler(e, true),
+                keys: digitsRegularString
             }
         ]
     }
@@ -108,6 +126,18 @@ class Shortcuts {
                 hk.handler(e)
             })
         })
+
+        hotkeys.filter = (e) => {
+            if (e.target.tagName === 'EDITABLE-WORDS') {
+                const isMacMeta = window.navigator.platform === 'MacIntel' && e.metaKey
+                const isOtherControl = window.navigator.platform !== 'MacIntel' && e.ctrlKey
+                const isDownCtrl = isMacMeta || isOtherControl
+                if (isDownCtrl && !e.shiftKey && !e.altKey && (e.which === 37 || e.which === 39)) {
+                    return false
+                }
+            }
+            return true
+        }
     }
 
     playPauseHandler (e) {
@@ -145,15 +175,22 @@ class Shortcuts {
         this.app.historyService.undo(this.app)
     }
 
-    digitHandler (e) {
+    saveHandler (e) {
+        this.app.saveToDB()
+        e.preventDefault()
+    }
+
+    digitHandler (e, isRegular = false) {
         let number = e.which - 48
         if (!isNaN(number) && number >= 1 && number <= 9) {
             let index = number - 1
             if (this.app.selectedRegion) {
                 let fileIndex = this.app.selectedRegion.data.fileIndex
-                let speakers = Object.keys(this.app.filesData[fileIndex].legend)
-                if (index < speakers.length) {
-                    this.app.speakerChanged(speakers[index])
+                const { regularSpeakers, defaultSpeakers } =  splitLegendSpeakers(this.app.filesData[fileIndex].legend)
+                if (isRegular && index < regularSpeakers.length) {
+                    this.app.speakerChanged(regularSpeakers[index])
+                } else if (!isRegular && index < defaultSpeakers.length) {
+                    this.app.speakerChanged(defaultSpeakers[index])
                 }
             }
         }
