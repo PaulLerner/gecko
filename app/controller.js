@@ -958,10 +958,11 @@ class MainController {
       if (this.applicationModes.DIARIZATION){
         speaker_regions.sort(function(first, second) {
           //first - second -> asc order
-         return first.data.segment.distance-second.data.segment.distance;
+         return first.data.distance-second.data.distance;
         });
         region_index= this.getRegionIndex(speaker_regions, this.selectedRegion);
       }
+      console.log(speaker_regions)
       return [speaker_regions, region_index]
     }
     getRegionIndex(regions, region){
@@ -1231,7 +1232,7 @@ class MainController {
                 var speakerId = "";
                 if (monologue.speaker) {
                   if (self.applicationModes.DIARIZATION){
-                    speakerId = monologue.speaker.segment.id.toString();
+                    speakerId = monologue.speaker.id.toString();
                   }
                   else if (self.applicationModes.IDENTIFICATION){
                     speakerId = monologue.speaker.cluster.id.toString();
@@ -1266,6 +1267,7 @@ class MainController {
 
                 last_end = end;
                 //region.element.innerText = speaker;
+                console.log(monologue)
                 var region = this.wavesurfer.addRegion({
                     start: start,
                     end: end,
@@ -1279,8 +1281,7 @@ class MainController {
                                 uuid: uuidv4()
                             }
                         }),
-                        segment: monologue.speaker.segment,
-                        cluster: monologue.speaker.cluster,
+                        distance:monologue.speaker.distance
                     },
                     drag: false,
                     resize:self.applicationModes.VANILLA,

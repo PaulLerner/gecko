@@ -4,12 +4,7 @@
     "speaker" : {
       "name" : "Monica Geller",
       "id" : "monica_geller",
-      "segment" :{
-        "id": "monica_geller",
-        "non_id" : ["rachel_green"],
-        "annotators" : 0,
-        "distance" : 0.38
-      },
+        "distance" : 0.38,
       "cluster" :{
         "id": "rachel_green",
         "annotators" : 0,
@@ -31,12 +26,7 @@
     "speaker" : {
       "name" : null,
       "id" : "rachel_green",
-      "segment" :{
-        "id": "rachel_green",
-        "non_id" : [],
-        "annotators" : 0,
-        "distance" : 0.38
-      },
+        "distance" : 0.38,
       "cluster" :{
         "id": "rachel_green",
         "annotators" : 0,
@@ -58,12 +48,7 @@
     "speaker" : {
       "name" : "Monica Geller",
       "id" : "monica_geller",
-      "segment" :{
-        "id": "monica_geller",
-        "non_id" : ["rachel_green"],
-        "annotators" : 0,
-        "distance" : 0.1
-      },
+        "distance" : 0.1,
       "cluster" :{
         "id": "monica_geller",
         "annotators" : 0,
@@ -85,12 +70,7 @@
     "speaker" : {
       "name" : "Monica Geller",
       "id" : "monica_geller",
-      "segment" :{
-        "id": "monica_geller",
-        "non_id" : ["rachel_green"],
-        "annotators" : 1,
-        "distance" : 0.15
-      },
+        "distance" : 0.15,
       "cluster" :{
         "id": "monica_geller",
         "annotators" : 1,

@@ -60,7 +60,7 @@ export const parse = (data) => {
 
 export const convert = (app, fileIndex) => {
     var self = app;
-    var data = {schemaVersion: "3.0", monologues: []};
+    var data = {schemaVersion: "2.0", monologues: []};
     app.iterateRegions(function (region) {
         let words = region.data.words;
         let terms = []
@@ -90,13 +90,11 @@ export const convert = (app, fileIndex) => {
         }
         var newSpeaker={
           id : self.formatSpeaker(region.data.speaker),
-          segment : region.data.segment,
-          cluster : region.data.cluster,
           color : region.color
         }
         if (self.applicationModes.DIARIZATION){
-          newSpeaker.segment.id=newSpeaker.id;
-          newSpeaker.segment.annotators++;
+          newSpeaker.id=newSpeaker.id;
+          newSpeaker.annotators++;
         }
         else if (self.applicationModes.IDENTIFICATION){
           newSpeaker.cluster.id=newSpeaker.id;
@@ -106,6 +104,7 @@ export const convert = (app, fileIndex) => {
             speaker: newSpeaker,
             start: region.start,
             end: region.end,
+            distance:region.distance,
             terms: terms
         });
 
