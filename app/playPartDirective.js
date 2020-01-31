@@ -96,22 +96,28 @@ export function playPartDirective() {
         scope.isPlaying = false;
       }
 
-      scope.playFirstRegion  = function () {
+      scope.playCentroid  = function () {
         /**
-        *plays first region (might redefine what 'first' means later on) of the speaker the user clicked on
+        *plays centroid region of the speaker the user clicked on
         *warns when no region labelled as scope.$parent.speaker were found
         */
         var ctrl = scope.$parent.ctrl;
         var speaker_id=scope.$parent.speaker;
         let firstRegion = null;
+        var selectedRegion = ctrl.selectedRegion;
         ctrl.iterateRegions(function (region) {
             let current_speaker = region.data.speaker;
 
             if (current_speaker[0]==speaker_id){
                 if (!firstRegion) {
                     firstRegion = region;
-                    const [speaker_regions, region_index] = ctrl.getSpeakerRegions(region);
-                    speaker_regions[0].play();
+                    const [speaker_regions, _] = ctrl.getSpeakerRegions(region);
+                    //speaker_regions are sort in desc. so play the 'last' region
+                    var centroid=speaker_regions[speaker_regions.length-1];
+                    scope.rep.start = centroid.start;
+                    scope.rep.end=centroid.end;
+                    play();
+
                   /*  region.on('out', function(e) {
                         region.play();
                         console.log("logging ",region," on out event");

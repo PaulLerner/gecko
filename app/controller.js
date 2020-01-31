@@ -958,11 +958,11 @@ class MainController {
       if (this.applicationModes.DIARIZATION){
         speaker_regions.sort(function(first, second) {
           //first - second -> asc order
-         return first.data.distance-second.data.distance;
+          //sort region in desc order as we want the user to discard the most unsure regions first.
+         return second.data.distance-first.data.distance;
         });
         region_index= this.getRegionIndex(speaker_regions, this.selectedRegion);
       }
-      console.log(speaker_regions)
       return [speaker_regions, region_index]
     }
     getRegionIndex(regions, region){
@@ -1267,7 +1267,6 @@ class MainController {
 
                 last_end = end;
                 //region.element.innerText = speaker;
-                console.log(monologue)
                 var region = this.wavesurfer.addRegion({
                     start: start,
                     end: end,
@@ -1653,7 +1652,6 @@ class MainController {
 
         // Add speaker to legend and assign random color
         const amountOfSpeakers = Object.keys(legend).length;// - Object.keys(constants.defaultSpeakers).length;
-        console.log(color,amountOfSpeakers)
         if (color===undefined){
           legend[this.newSpeakerName] =constants.SPEAKER_COLORS[amountOfSpeakers];
         }
