@@ -95,7 +95,29 @@ export function playPartDirective() {
         source.stop();
         scope.isPlaying = false;
       }
+      scope.playFirstRegion = function () {
+        /**
+        *plays the first region of the speaker the user clicked on
+        *warns when no region labelled as scope.$parent.speaker were found
+        */
+        stop()
+        var ctrl = scope.$parent.ctrl;
+        var speaker_id=scope.$parent.speaker;
+        let firstRegion = null;
+        ctrl.iterateRegions(function (region) {
+            let current_speaker = region.data.speaker;
 
+            if (current_speaker[0]==speaker_id){
+                if (!firstRegion) {
+                    firstRegion = region;
+                    const [speaker_regions, _] = ctrl.getSpeakerRegions(region);
+                    //speaker_regions are sort in desc. so play the 'last' region
+                    speaker_regions[0].play();
+                  }
+                }
+              });
+              if (firstRegion===null) console.warn("There's no region labelled as "+speaker_id);
+      }
       scope.playCentroid  = function () {
         /**
         *plays centroid region of the speaker the user clicked on
@@ -104,7 +126,6 @@ export function playPartDirective() {
         var ctrl = scope.$parent.ctrl;
         var speaker_id=scope.$parent.speaker;
         let firstRegion = null;
-        var selectedRegion = ctrl.selectedRegion;
         ctrl.iterateRegions(function (region) {
             let current_speaker = region.data.speaker;
 
@@ -117,41 +138,11 @@ export function playPartDirective() {
                     scope.rep.start = centroid.start;
                     scope.rep.end=centroid.end;
                     play();
-
-                  /*  region.on('out', function(e) {
-                        region.play();
-                        console.log("logging ",region," on out event");
-                    });*/
                 }
             }
         });
         if (firstRegion===null) console.warn("There's no region labelled as "+speaker_id);
       }
-      scope.playSpeaker = function () {
-          console.log("in playSpeaker function ");
-                      var ctrl = scope.$parent.ctrl;
-                      var speaker_id=scope.$parent.speaker;
-                      console.log("speaker_id",speaker_id);
-                      let firstRegion = null;
-                      var speakers_regions=[];
-                      var i =0;
-                      ctrl.iterateRegions(function (region) {
-                          let current_speaker = region.data.speaker;
-                          if (current_speaker[0]==speaker_id){
-                              if (!firstRegion) {
-                                  firstRegion = region;
-                                  region.play();
-                              }
-                              speakers_regions.push(region)
-                          region.on('out', function(e) {
-                              i+=1;
-                              console.log(i);
-                              speakers_regions[i].play();
-                              console.log("logging ",region," on out event");
-                          });
-                          }
-                      });
-       }
 
       scope.playStop = function () {
 
