@@ -95,12 +95,15 @@ export function playPartDirective() {
         source.stop();
         scope.isPlaying = false;
       }
+      this.preventSingleClick = false;
+      this.delay=200;
       scope.playFirstRegion = function () {
         /**
         *plays the first region of the speaker the user clicked on
         *warns when no region labelled as scope.$parent.speaker were found
         */
-        stop()
+        this.preventSingleClick = true;
+        clearTimeout(this.timer);
         var ctrl = scope.$parent.ctrl;
         var speaker_id=scope.$parent.speaker;
         let firstRegion = null;
@@ -111,7 +114,7 @@ export function playPartDirective() {
                 if (!firstRegion) {
                     firstRegion = region;
                     const [speaker_regions, _] = ctrl.getSpeakerRegions(region);
-                    //speaker_regions are sort in desc. so play the 'last' region
+                    //speaker_regions are sort in desc.
                     speaker_regions[0].play();
                   }
                 }
@@ -123,31 +126,35 @@ export function playPartDirective() {
         *plays centroid region of the speaker the user clicked on
         *warns when no region labelled as scope.$parent.speaker were found
         */
-        var ctrl = scope.$parent.ctrl;
-        var speaker_id=scope.$parent.speaker;
-        let firstRegion = null;
-        ctrl.iterateRegions(function (region) {
-            let current_speaker = region.data.speaker;
+        this.preventSingleClick = false;
+        const delay=200;
+        this.timer = setTimeout(() => {
+        if (!this.preventSingleClick) {
+          var ctrl = scope.$parent.ctrl;
+          var speaker_id=scope.$parent.speaker;
+          let firstRegion = null;
+          ctrl.iterateRegions(function (region) {
+              let current_speaker = region.data.speaker;
 
-            if (current_speaker[0]==speaker_id){
-                if (!firstRegion) {
-                    firstRegion = region;
-                    const [speaker_regions, _] = ctrl.getSpeakerRegions(region);
-                    //speaker_regions are sort in desc. so play the 'last' region
-                    var centroid=speaker_regions[speaker_regions.length-1];
-                    scope.rep.start = centroid.start;
-                    scope.rep.end=centroid.end;
-                    play();
-                }
-            }
-        });
-        if (firstRegion===null) console.warn("There's no region labelled as "+speaker_id);
+              if (current_speaker[0]==speaker_id){
+                  if (!firstRegion) {
+                      firstRegion = region;
+                      const [speaker_regions, _] = ctrl.getSpeakerRegions(region);
+                      //speaker_regions are sort in desc. so play the 'last' region
+                      var centroid=speaker_regions[speaker_regions.length-1];
+                      scope.rep.start = centroid.start;
+                      scope.rep.end=centroid.end;
+                      play();
+                  }
+              }
+          });
+          if (firstRegion===null) console.warn("There's no region labelled as "+speaker_id);
+          }
+        }, delay);
+
       }
 
       scope.playStop = function () {
-
-        console.log("in playStop function ")
-        //ctrl.playSpeaker()
         scope.isPlaying ? stop() : play();
       }
   }
