@@ -986,6 +986,9 @@ class MainController {
               else {//play next region of the same speaker
                 const [speaker_regions, region_index] = this.getSpeakerRegions(this.selectedRegion);
                 region=speaker_regions[region_index+1];
+                //increment region # of annotators
+                if (!this.selectedRegion.data.annotators) this.selectedRegion.data.annotators=0
+                this.selectedRegion.data.annotators+=1
               }
             }
             else {
@@ -1280,7 +1283,8 @@ class MainController {
                                 uuid: uuidv4()
                             }
                         }),
-                        distance:monologue.speaker.distance
+                        distance:monologue.speaker.distance,
+                        annotators:monologue.speaker.annotators
                     },
                     drag: false,
                     resize:self.applicationModes.VANILLA,

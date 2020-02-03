@@ -90,21 +90,15 @@ export const convert = (app, fileIndex) => {
         }
         var newSpeaker={
           id : self.formatSpeaker(region.data.speaker),
-          color : region.color
-        }
-        if (self.applicationModes.DIARIZATION){
-          newSpeaker.id=newSpeaker.id;
-          newSpeaker.annotators++;
-        }
-        else if (self.applicationModes.IDENTIFICATION){
-          newSpeaker.cluster.id=newSpeaker.id;
-          newSpeaker.cluster.annotators++;
+          color : region.color,
+
+          distance:region.data.distance,
+          annotators:region.data.annotators
         }
         data.monologues.push({
             speaker: newSpeaker,
             start: region.start,
             end: region.end,
-            distance:region.distance,
             terms: terms
         });
 
