@@ -60,7 +60,7 @@ export const parse = (data) => {
 
 export const convert = (app, fileIndex) => {
     var self = app;
-    var data = {schemaVersion: "2.0", monologues: []};
+    var data = {schemaVersion: "3.1", monologues: []};
     app.iterateRegions(function (region) {
         let words = region.data.words;
         let terms = []
@@ -93,7 +93,8 @@ export const convert = (app, fileIndex) => {
           color : region.color,
 
           distance:region.data.distance,
-          annotators:region.data.annotators
+          annotators:region.data.annotators,
+          non_id:region.data.non_id
         }
         data.monologues.push({
             speaker: newSpeaker,

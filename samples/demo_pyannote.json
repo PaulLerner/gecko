@@ -1,92 +1,95 @@
 {
-  "schemaVersion" : "3.0",
-  "monologues" : [ {
-    "speaker" : {
-      "name" : "Monica Geller",
-      "id" : "monica_geller",
-        "distance" : 0.38,
-      "cluster" :{
-        "id": "rachel_green",
-        "annotators" : 0,
-        "confidence" : 0.71
-      }
-    },
-    "terms" : [ {
-      "start" : 0.03,
-      "end" : 0.09,
-      "text" : "Hi",
-      "type" : "WORD"
-    }, {
-      "start" : 5.55,
-      "end" : 5.55,
-      "text" : ".",
-      "type" : "PUNCTUATION"
-    } ]
-  }, {
-    "speaker" : {
-      "name" : null,
-      "id" : "rachel_green",
-        "distance" : 0.38,
-      "cluster" :{
-        "id": "rachel_green",
-        "annotators" : 0,
-        "confidence" : 0.6
-      }
-    },
-    "terms" : [ {
-      "start" : 6.6,
-      "end" : 7.02,
-      "text" : "Yeah",
-      "type" : "WORD"
-    }, {
-      "start" : 15.06,
-      "end" : 15.06,
-      "text" : ".",
-      "type" : "PUNCTUATION"
-    } ]
-  }, {
-    "speaker" : {
-      "name" : "Monica Geller",
-      "id" : "monica_geller",
-        "distance" : 0.1,
-      "cluster" :{
+  "schemaVersion": "3.1",
+  "monologues": [
+    {
+      "speaker": {
+        "name": "Monica Geller",
         "id": "monica_geller",
-        "annotators" : 0,
-        "confidence" : 0.71
-      }
+        "non_id":[],
+        "distance": 0.38,
+        "annotators":1
+      },
+      "terms": [
+        {
+          "start": 0.03,
+          "end": 0.09,
+          "text": "Hi",
+          "type": "WORD"
+        },
+        {
+          "start": 5.55,
+          "end": 5.55,
+          "text": ".",
+          "type": "PUNCTUATION"
+        }
+      ]
     },
-    "terms" : [ {
-      "start" : 15.49,
-      "end" : 15.88,
-      "text" : "Sounds",
-      "type" : "WORD"
-    }, {
-      "start" : 19.24,
-      "end" : 19.24,
-      "text" : "?",
-      "type" : "PUNCTUATION"
-    } ]
-  }, {
-    "speaker" : {
-      "name" : "Monica Geller",
-      "id" : "monica_geller",
-        "distance" : 0.15,
-      "cluster" :{
+    {
+      "speaker": {
+        "name": null,
+        "id": "rachel_green",
+        "non_id":[],
+        "distance": 0.38,
+        "annotators":0
+      },
+      "terms": [
+        {
+          "start": 6.6,
+          "end": 7.02,
+          "text": "Yeah",
+          "type": "WORD"
+        },
+        {
+          "start": 15.06,
+          "end": 15.06,
+          "text": ".",
+          "type": "PUNCTUATION"
+        }
+      ]
+    },
+    {
+      "speaker": {
+        "name": "Monica Geller",
         "id": "monica_geller",
-        "annotators" : 1,
-        "confidence" : 0.2
-      }
+        "non_id":[],
+        "distance": 0.1
+      },
+      "terms": [
+        {
+          "start": 15.49,
+          "end": 15.88,
+          "text": "Sounds",
+          "type": "WORD"
+        },
+        {
+          "start": 19.24,
+          "end": 19.24,
+          "text": "?",
+          "type": "PUNCTUATION"
+        }
+      ]
     },
-    "terms" : [ {
-      "start" : 567.95,
-      "end" : 568.16,
-      "text" : "Thank",
-      "type" : "WORD"
-    }, {
-      "start" : 568.73,
-      "end" : 568.73,
-      "text" : ".",
-      "type" : "PUNCTUATION"
-    } ]
-  } ]
+    {
+      "speaker": {
+        "name": "Monica Geller",
+        "id": "monica_geller",
+        "non_id":[],
+        "distance": 0.15
+      },
+      "terms": [
+        {
+          "start": 567.95,
+          "end": 568.16,
+          "text": "Thank",
+          "type": "WORD"
+        },
+        {
+          "start": 568.73,
+          "end": 568.73,
+          "text": ".",
+          "type": "PUNCTUATION"
+        }
+      ]
+    }
+  ]
 }

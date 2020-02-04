@@ -1284,7 +1284,8 @@ class MainController {
                             }
                         }),
                         distance:monologue.speaker.distance,
-                        annotators:monologue.speaker.annotators
+                        annotators:monologue.speaker.annotators,
+                        non_id:monologue.speaker.non_id
                     },
                     drag: false,
                     resize:self.applicationModes.VANILLA,
@@ -1567,13 +1568,13 @@ class MainController {
         // Is currently selected
         if (idx > -1) {
             speakers.splice(idx, 1);
+            //user deselcted speaker -> add to non_id
+            self.selectedRegion.data.non_id.push(speaker)
         }
-
         // Is newly selected
         else {
             speakers.push(speaker);
         }
-
         self.addHistory(self.selectedRegion);
         self.undoStack.push([self.selectedRegion.id]);
         this.eventBus.trigger('geckoChanged', {
