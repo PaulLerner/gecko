@@ -955,7 +955,7 @@ class MainController {
           i+=1;
         }
       });
-      if (this.applicationModes.DIARIZATION){
+      if (!this.applicationModes.VANILLA){
         speaker_regions.sort(function(first, second) {
           //first - second -> asc order
           //sort region in desc order as we want the user to discard the most unsure regions first.
@@ -1247,7 +1247,7 @@ class MainController {
                     speakerId = monologue.speaker.id.toString();
                   }
                   else if (self.applicationModes.IDENTIFICATION){
-                    speakerId = monologue.speaker.cluster.id.toString();
+                    speakerId = monologue.speaker.id.toString();
                   }
                   else {//default / vanilla
                     speakerId = monologue.speaker.id.toString();
