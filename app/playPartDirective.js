@@ -65,13 +65,7 @@ export function playPartDirective() {
         scope.rep.end = parseFloat(scope.rep.end);
 
         if (isNaN(scope.rep.start) && isNaN(scope.rep.end)) {
-          let parent = scope.$parent.ctrl;
-          if (parent.selectedRegion) {
-            scope.rep.start = parent.selectedRegion.start;
-            scope.rep.end = parent.selectedRegion.end;
-          } else {
-            return;
-          }
+          return;
         }
 
         source = scope.audioContext.createBufferSource(); // creates a sound source
@@ -144,7 +138,7 @@ export function playPartDirective() {
                       var centroid=speaker_regions[speaker_regions.length-1];
                       scope.rep.start = centroid.start;
                       scope.rep.end=centroid.end;
-                      play();
+                      scope.playStop();
                   }
               }
           });
