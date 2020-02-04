@@ -1004,9 +1004,17 @@ class MainController {
               if (this.applicationModes.VANILLA){
                 region = this.wavesurfer.regions.list[selectedRegion.prev];
               }
-              else {//play previous region of the same speaker
+              else {
                 const [speaker_regions, region_index] = this.getSpeakerRegions(selectedRegion);
-                region=speaker_regions[region_index-1];
+                if (region_index-1 >= 0)//play previous region of the same speaker
+                {
+                  region=speaker_regions[region_index-1];
+                }
+                else//go back to last region
+                {
+                  console.log("going back to last region")
+                  region=speaker_regions[speaker_regions.length-1];
+                }
               }
             }
         }
