@@ -978,25 +978,34 @@ class MainController {
     }
     jumpRegion(next) {
         var region;
-        if (this.selectedRegion) {
+        if (this.deselectedRegion)//jumps to the same speaker regions that the user de-selected
+        {
+          var selectedRegion=this.deselectedRegion
+          this.deselectedRegion=null
+        }
+        else
+        {
+          var selectedRegion = this.selectedRegion
+        }
+        if (selectedRegion) {
             if (next) {
               if (this.applicationModes.VANILLA){
-                region = this.wavesurfer.regions.list[this.selectedRegion.next];
+                region = this.wavesurfer.regions.list[selectedRegion.next];
               }
               else {//play next region of the same speaker
-                const [speaker_regions, region_index] = this.getSpeakerRegions(this.selectedRegion);
+                const [speaker_regions, region_index] = this.getSpeakerRegions(selectedRegion);
                 region=speaker_regions[region_index+1];
                 //increment region # of annotators
-                if (!this.selectedRegion.data.annotators) this.selectedRegion.data.annotators=0
-                this.selectedRegion.data.annotators+=1
+                if (!selectedRegion.data.annotators) selectedRegion.data.annotators=0
+                selectedRegion.data.annotators+=1
               }
             }
             else {
               if (this.applicationModes.VANILLA){
-                region = this.wavesurfer.regions.list[this.selectedRegion.prev];
+                region = this.wavesurfer.regions.list[selectedRegion.prev];
               }
               else {//play previous region of the same speaker
-                const [speaker_regions, region_index] = this.getSpeakerRegions(this.selectedRegion);
+                const [speaker_regions, region_index] = this.getSpeakerRegions(selectedRegion);
                 region=speaker_regions[region_index-1];
               }
             }
@@ -1567,8 +1576,10 @@ class MainController {
 
         // Is currently selected
         if (idx > -1) {
+            //deep copy selected region before we modify anything
+            self.deselectedRegion=self.copyRegion(self.selectedRegion);
             speakers.splice(idx, 1);
-            //user deselcted speaker -> add to non_id
+            //user deselected speaker -> add to non_id
             self.selectedRegion.data.non_id.push(speaker)
         }
         // Is newly selected
