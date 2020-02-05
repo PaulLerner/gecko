@@ -6,7 +6,7 @@ var config = {
         // waveColor == progressColor => no progress painting
         // progressColor: 'black',
         pixelRatio: 1,
-        autoCenter : false,
+        autoCenter : true,
         autoCenterImmediately: true,
         height: '350',
         useSpectrogram: true,
