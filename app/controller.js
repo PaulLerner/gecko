@@ -131,7 +131,6 @@ class MainController {
             this.loadClientMode();
         }
     }
-
     resetApplicationMode(applicationMode){
       this.applicationMode=applicationMode
       this.applicationModes={}
@@ -956,21 +955,13 @@ class MainController {
           i+=1;
         }
       });
-      if (this.deselectedRegion)//jumps to the same speaker regions that the user de-selected
-      {
-        speaker_regions.push(this.deselectedRegion)
-        region_index=speaker_regions.length -1
-        this.deselectedRegion=null
-      }
       if (!this.applicationModes.VANILLA){
         speaker_regions.sort(function(first, second) {
           //first - second -> asc order
           //sort region in desc order as we want the user to discard the most unsure regions first.
          return second.data.distance-first.data.distance;
         });
-        region_index= this.getRegionIndex(speaker_regions, region);
-        console.log(region)
-        console.log(region_index)
+        region_index= this.getRegionIndex(speaker_regions, this.selectedRegion);
       }
       return [speaker_regions, region_index]
     }
@@ -990,31 +981,42 @@ class MainController {
         if (this.deselectedRegion)//jumps to the same speaker regions that the user de-selected
         {
           var selectedRegion=this.deselectedRegion
+          this.deselectedRegion=null
         }
         else
         {
           var selectedRegion = this.selectedRegion
         }
         if (selectedRegion) {
-            var [speaker_regions, region_index] = this.getSpeakerRegions(selectedRegion);
             if (next) {
-                region_index++;
+              if (this.applicationModes.VANILLA){
+                region = this.wavesurfer.regions.list[selectedRegion.next];
+              }
+              else {//play next region of the same speaker
+                const [speaker_regions, region_index] = this.getSpeakerRegions(selectedRegion);
+                region=speaker_regions[region_index+1];
                 //increment region # of annotators
                 if (!selectedRegion.data.annotators) selectedRegion.data.annotators=0
                 selectedRegion.data.annotators+=1
+              }
             }
             else {
+              if (this.applicationModes.VANILLA){
+                region = this.wavesurfer.regions.list[selectedRegion.prev];
+              }
+              else {
+                const [speaker_regions, region_index] = this.getSpeakerRegions(selectedRegion);
                 if (region_index-1 >= 0)//play previous region of the same speaker
                 {
-                  region_index--;
+                  region=speaker_regions[region_index-1];
                 }
                 else//go back to last region
                 {
                   console.log("going back to last region")
-                  region_index=speaker_regions.length-1;
+                  region=speaker_regions[speaker_regions.length-1];
                 }
+              }
             }
-          region=speaker_regions[region_index];
         }
         else {
             if (next) {
@@ -1186,7 +1188,7 @@ class MainController {
               fileData.legend = Object.assign({}, constants.defaultSpeakers);
             }
             else {
-              fileData.legend = Object.assign({}, constants.defaultSpeakers);//{};
+              fileData.legend = {};
             }
 
 
